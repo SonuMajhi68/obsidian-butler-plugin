@@ -1,5 +1,5 @@
 import { App, Notice, Editor, MarkdownView } from "obsidian";
-import { WikiSearchModal } from "../modals/wikiSearch";
+import { WikiSearchModal } from "../modals/wikiSearchModal";
 
 export function registerWikiSearchContext(app: App) {
 	app.workspace.on("editor-menu", (menu, editor: Editor, view: MarkdownView) => {

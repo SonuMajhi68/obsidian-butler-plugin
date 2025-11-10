@@ -1,9 +1,9 @@
 import { App, Notice } from "obsidian";
-import { WikiSearchSettings } from "../types";
+import { ButlerSettings } from "../types";
 
 export interface FolderHiderContext {
 	app: App;
-	settings: Pick<WikiSearchSettings, 'hiddenFolders' | 'foldersHidden'>; // Only depend on settings we need
+	settings: Pick<ButlerSettings, 'hiddenFolders' | 'foldersHidden'>; // Only depend on settings we need
 	saveSettings: () => Promise<void>;
 	registerDomEvent: (el: Document | HTMLElement, event: string, handler: EventListenerOrEventListenerObject) => void;
 }

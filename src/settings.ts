@@ -1,12 +1,12 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { FolderSuggest } from "./utils/folderSuggest";
 import { FileSuggest } from "./utils/fileSuggest";
-import { WikiSearchPluginLike } from "./types";
+import { ButlerPluginLike } from "./types";
 
-export class WikiSearchSettingTab extends PluginSettingTab {
-	plugin: WikiSearchPluginLike;
+export class ButlerSettingTab extends PluginSettingTab {
+	plugin: ButlerPluginLike;
 
-	constructor(app: App, plugin: WikiSearchPluginLike) {
+	constructor(app: App, plugin: ButlerPluginLike) {
 		super(app, plugin as any); // The 'as any' is from the original, likely to satisfy PluginSettingTab constructor
 		this.plugin = plugin;
 	}
@@ -33,7 +33,7 @@ export class WikiSearchSettingTab extends PluginSettingTab {
 
 		// Template file path
 		new Setting(containerEl)
-			.setName("Template file path")
+			.setName("Book template file path")
 			.setDesc("Select the template to use for new book notes")
 			.addSearch((cb) => {
 				new FileSuggest(this.app, cb.inputEl);
@@ -41,6 +41,51 @@ export class WikiSearchSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.templateFilePath)
 					.onChange(async (newValue) => {
 						this.plugin.settings.templateFilePath = newValue;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		// --- Movie Search Settings ---
+		containerEl.createEl("h1", { text: "Movie & Series Search Settings" });
+
+		// OMDb API Key
+		new Setting(containerEl)
+			.setName("OMDb API Key")
+			.setDesc("Your personal API key from omdbapi.com")
+			.addText((text) =>
+				text
+					.setPlaceholder("Enter your API key...")
+					.setValue(this.plugin.settings.omdbApiKey)
+					.onChange(async (value) => {
+						this.plugin.settings.omdbApiKey = value.trim();
+						await this.plugin.saveSettings();
+					})
+			);
+
+		// Movie folder path
+		new Setting(containerEl)
+			.setName("Movie folder path")
+			.setDesc("Select the folder where new movie/series notes will be created")
+			.addSearch((cb) => {
+				new FolderSuggest(this.app, cb.inputEl);
+				cb.setPlaceholder("Example: Movies/")
+					.setValue(this.plugin.settings.movieFolderPath)
+					.onChange(async (newValue) => {
+						this.plugin.settings.movieFolderPath = newValue;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		// Movie Template file path
+		new Setting(containerEl)
+			.setName("Movie template file path")
+			.setDesc("Select the template to use for new movie/series notes")
+			.addSearch((cb) => {
+				new FileSuggest(this.app, cb.inputEl);
+				cb.setPlaceholder("Example: Templates/movie.md")
+					.setValue(this.plugin.settings.movieTemplateFilePath)
+					.onChange(async (newValue) => {
+						this.plugin.settings.movieTemplateFilePath = newValue;
 						await this.plugin.saveSettings();
 					});
 			});

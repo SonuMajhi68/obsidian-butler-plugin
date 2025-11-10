@@ -1,13 +1,16 @@
 import { App, Modal, Notice, TFile, normalizePath } from "obsidian";
+import { OpenLibraryApi, OpenLibrarySearchItem } from "../apis/openLibraryApi"; // Import new service
 
 export class SearchBooksModal extends Modal {
 	private savePath: string;
 	private templatePath: string;
+	private api: OpenLibraryApi; // Add api property
 
 	constructor(app: App, savePath: string, templatePath: string) {
 		super(app);
 		this.savePath = savePath;
 		this.templatePath = templatePath;
+		this.api = new OpenLibraryApi(); // Initialize new service
 	}
 
 	onOpen() {
@@ -45,13 +48,10 @@ export class SearchBooksModal extends Modal {
 			resultsEl.createDiv({ text: "Loading..." });
 
 			try {
-				const res = await fetch(
-					`https://openlibrary.org/search.json?q=${encodeURIComponent(value)}&limit=15`
-				);
-				if (!res.ok) {
-					throw new Error(`HTTP error! status: ${res.status}`);
-				}
-				const json = await res.json();
+				// --- Refactored API Call ---
+				const json = await this.api.searchByTitle(value);
+				// --- End Refactor ---
+
 				resultsEl.empty();
 
 				if (!json.docs || json.docs.length === 0) {
@@ -59,7 +59,7 @@ export class SearchBooksModal extends Modal {
 					return;
 				}
 
-				json.docs.forEach((doc: any) => {
+				json.docs.forEach((doc: OpenLibrarySearchItem) => {
 					const title = doc.title ?? "Unknown Title";
 					const authors = doc.author_name?.join(", ") ?? "Unknown Author";
 					const year = doc.first_publish_year ?? "N/A";
@@ -84,7 +84,7 @@ export class SearchBooksModal extends Modal {
 			} catch (err) {
 				console.error("Book search failed:", err);
 				resultsEl.empty();
-				resultsEl.createEl("p", { text: "Error fetching results. Check console." });
+				resultsEl.createEl("p", { text: `Error: ${err.message}. Check console.` });
 			}
 		};
 
@@ -102,11 +102,9 @@ export class SearchBooksModal extends Modal {
 		publisher: string
 	) {
 		try {
-			const res = await fetch(`https://openlibrary.org${key}.json`);
-			if (!res.ok) {
-				throw new Error(`HTTP error! status: ${res.status}`);
-			}
-			const bookData = await res.json();
+			// --- Refactored API Call ---
+			const bookData = await this.api.getByKey(key);
+			// --- End Refactor ---
 
 			const coverUrl = bookData.covers
 				? `https://covers.openlibrary.org/b/id/${bookData.covers[0]}-L.jpg`
@@ -170,7 +168,7 @@ export class SearchBooksModal extends Modal {
 
 		} catch (err) {
 			console.error("Error saving book details:", err);
-			new Notice("Error saving book details. Check console.");
+			new Notice(`Error saving details: ${err.message}. Check console.`);
 		}
 	}
 

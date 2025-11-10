@@ -1,8 +1,15 @@
 import { App } from "obsidian";
 
-export interface WikiSearchSettings {
+export interface ButlerSettings {
 	bookFolderPath: string;
 	templateFilePath: string;
+	
+	// Movie settings
+	movieFolderPath: string;
+	movieTemplateFilePath: string;
+	omdbApiKey: string;
+
+	// Folder hider settings
 	hiddenFolders: string[];
 	foldersHidden: boolean;
 }
@@ -11,9 +18,9 @@ export interface WikiSearchSettings {
  * Defines the interface for the main plugin class,
  * allowing the settings tab to interact with it abstractly.
  */
-export interface WikiSearchPluginLike {
+export interface ButlerPluginLike {
 	app: App;
-	settings: WikiSearchSettings;
+	settings: ButlerSettings;
 	saveSettings: () => Promise<void>;
 	/** * Optional wrapper method (added in main.ts) to trigger
 	 * the folderHider to re-process folders.
