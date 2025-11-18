@@ -1,11 +1,11 @@
 import { TAbstractFile, TFile, App } from "obsidian";
 import { AbstractInputSuggest } from "obsidian";
 
-/**
- * Suggests TFiles (markdown, etc.) based on user input.
- */
 export class FileSuggest extends AbstractInputSuggest<TFile> {
-	constructor(app: App, private inputEl: HTMLInputElement) {
+	constructor(
+		app: App,
+		private inputEl: HTMLInputElement,
+	) {
 		super(app, inputEl);
 	}
 

@@ -1,7 +1,5 @@
 import { requestUrl, RequestUrlParam } from "obsidian";
 
-// --- API Response Types (based on bookSearch.ts) ---
-
 export interface OpenLibrarySearchItem {
 	key: string;
 	title: string;
@@ -20,9 +18,6 @@ export interface OpenLibraryBookResult {
 	[key: string]: any; // Allow other properties
 }
 
-/**
- * A service class to interact with the OpenLibrary API.
- */
 export class OpenLibraryApi {
 	private baseUrl = "https://openlibrary.org";
 
@@ -66,25 +61,30 @@ export class OpenLibraryApi {
 	private async makeRequest(url: URL) {
 		const requestParams: RequestUrlParam = {
 			url: url.toString(),
-			method: 'GET',
+			method: "GET",
 		};
 
 		try {
 			const response = await requestUrl(requestParams);
 
 			if (response.status !== 200) {
-				throw new Error(`OpenLibrary API request failed with status ${response.status}`);
+				throw new Error(
+					`OpenLibrary API request failed with status ${response.status}`,
+				);
 			}
-			
+
 			if (!response.json) {
-				throw new Error("Received empty or invalid JSON response from OpenLibrary.");
+				throw new Error(
+					"Received empty or invalid JSON response from OpenLibrary.",
+				);
 			}
 
 			return response;
-
 		} catch (error) {
 			console.error("OpenLibrary API request error:", error);
-			throw new Error(`Failed to fetch from OpenLibrary. Check console for details.`);
+			throw new Error(
+				`Failed to fetch from OpenLibrary. Check console for details.`,
+			);
 		}
 	}
 }

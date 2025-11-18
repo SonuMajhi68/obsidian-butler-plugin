@@ -1,9 +1,7 @@
 import { requestUrl, RequestUrlParam } from "obsidian";
 
-// --- API Response Types (based on user's example) ---
-
 interface OMDbErrorResponse {
-	Response: 'False';
+	Response: "False";
 	Error: string;
 }
 
@@ -16,13 +14,13 @@ export interface OMDbSearchItem {
 }
 
 interface OMDbSearchResponse {
-	Response: 'True';
+	Response: "True";
 	totalResults: string;
 	Search: OMDbSearchItem[];
 }
 
 export interface OMDbMovieResult {
-	Response: 'True';
+	Response: "True";
 	Title: string;
 	Year: string;
 	Rated: string;
@@ -49,10 +47,6 @@ export interface OMDbMovieResult {
 type SearchResponse = OMDbSearchResponse | OMDbErrorResponse;
 type IdResponse = OMDbMovieResult | OMDbErrorResponse;
 
-
-/**
- * A service class to interact with the OMDb API.
- */
 export class OmdbApi {
 	private apiKey: string;
 	private baseUrl = "https://www.omdbapi.com/";
@@ -74,7 +68,7 @@ export class OmdbApi {
 		const response = await this.makeRequest(url);
 		const data = response.json as SearchResponse;
 
-		if (data.Response === 'False') {
+		if (data.Response === "False") {
 			if (data.Error === "Movie not found!") {
 				return []; // Not an error, just no results
 			}
@@ -98,7 +92,7 @@ export class OmdbApi {
 		const response = await this.makeRequest(url);
 		const data = response.json as IdResponse;
 
-		if (data.Response === 'False') {
+		if (data.Response === "False") {
 			throw new Error(data.Error);
 		}
 
@@ -113,25 +107,30 @@ export class OmdbApi {
 	private async makeRequest(url: URL) {
 		const requestParams: RequestUrlParam = {
 			url: url.toString(),
-			method: 'GET',
+			method: "GET",
 		};
 
 		try {
 			const response = await requestUrl(requestParams);
 
 			if (response.status !== 200) {
-				throw new Error(`OMDb API request failed with status ${response.status}`);
+				throw new Error(
+					`OMDb API request failed with status ${response.status}`,
+				);
 			}
-			
+
 			if (!response.json) {
-				throw new Error("Received empty or invalid JSON response from OMDb.");
+				throw new Error(
+					"Received empty or invalid JSON response from OMDb.",
+				);
 			}
 
 			return response;
-
 		} catch (error) {
 			console.error("OMDb API request error:", error);
-			throw new Error(`Failed to fetch from OMDb. Check console for details.`);
+			throw new Error(
+				`Failed to fetch from OMDb. Check console for details.`,
+			);
 		}
 	}
 }

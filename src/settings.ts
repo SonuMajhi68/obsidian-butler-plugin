@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { App, PluginSettingTab, Setting } from "obsidian";
 import { FolderSuggest } from "./utils/folderSuggest";
 import { FileSuggest } from "./utils/fileSuggest";
@@ -7,7 +9,7 @@ export class ButlerSettingTab extends PluginSettingTab {
 	plugin: ButlerPluginLike;
 
 	constructor(app: App, plugin: ButlerPluginLike) {
-		super(app, plugin as any); // The 'as any' is from the original, likely to satisfy PluginSettingTab constructor
+		super(app, plugin as any); 
 		this.plugin = plugin;
 	}
 
@@ -59,13 +61,15 @@ export class ButlerSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.omdbApiKey = value.trim();
 						await this.plugin.saveSettings();
-					})
+					}),
 			);
 
 		// Movie folder path
 		new Setting(containerEl)
 			.setName("Movie folder path")
-			.setDesc("Select the folder where new movie/series notes will be created")
+			.setDesc(
+				"Select the folder where new movie/series notes will be created",
+			)
 			.addSearch((cb) => {
 				new FolderSuggest(this.app, cb.inputEl);
 				cb.setPlaceholder("Example: Movies/")
@@ -89,16 +93,20 @@ export class ButlerSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-		
+
 		containerEl.createEl("h1", { text: "Hide Folder Settings" });
 
 		// Hidden folders textarea
 		new Setting(containerEl)
 			.setName("Hidden Folders")
-			.setDesc("Enter folder names (one per line) that should be hidden from the file explorer. Use startswith:: or endswith:: prefixes for partial matches.")
+			.setDesc(
+				"Enter folder names (one per line) that should be hidden from the file explorer. Use startswith:: or endswith:: prefixes for partial matches.",
+			)
 			.addTextArea((text) => {
 				text.setPlaceholder("Templates\nOldBooks\nArchive")
-					.setValue((this.plugin.settings.hiddenFolders ?? []).join("\n"))
+					.setValue(
+						(this.plugin.settings.hiddenFolders ?? []).join("\n"),
+					)
 					.onChange(async (value) => {
 						this.plugin.settings.hiddenFolders = value
 							.split("\n")
@@ -112,7 +120,9 @@ export class ButlerSettingTab extends PluginSettingTab {
 		// Hide by default toggle
 		new Setting(containerEl)
 			.setName("Hide Folders by Default")
-			.setDesc("If enabled, the folders listed above will be hidden until toggled.")
+			.setDesc(
+				"If enabled, the folders listed above will be hidden until toggled.",
+			)
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.foldersHidden)
@@ -120,7 +130,43 @@ export class ButlerSettingTab extends PluginSettingTab {
 						this.plugin.settings.foldersHidden = value;
 						await this.plugin.saveSettings();
 						this.plugin.processFolders?.();
-					})
+					}),
 			);
+
+		containerEl.createEl("h1", { text: "Tabs Settings" });
+
+		// 1. Hover Border Setting
+		new Setting(containerEl)
+			.setName("Hide Tab border on hover")
+			.setDesc("Hide a border around the tabs container when hovering.")
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.tabsHoverBorder)
+					.onChange(async (value) => {
+						if (value) {
+							document.body.addClass("hide-boder");
+						} else {
+							document.body.removeClass("hide-boder");
+						}
+						this.plugin.settings.tabsHoverBorder = value;
+						await this.plugin.saveSettings();
+					}),
+			);
+
+		// 2. Hide Edit Button Setting
+		// new Setting(containerEl)
+		// 	.setName("Hide code block edit button")
+		// 	.setDesc(
+		// 		"Hide the 'Edit' button that appears on top right of the tabs block.",
+		// 	)
+		// 	.addToggle((toggle) =>
+		// 		toggle
+		// 			.setValue(this.plugin.settings.hideTabsEditButton)
+		// 			.onChange(async (value) => {
+		// 				this.plugin.settings.hideTabsEditButton = value;
+		// 				await this.plugin.saveSettings();
+		// 				// This updates immediately via the body class logic in main.ts
+		// 			}),
+		// 	);
 	}
 }

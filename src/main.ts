@@ -1,15 +1,16 @@
-import { Plugin, Notice, setIcon } from "obsidian";
-import { SearchBooksModal } from "./modals/bookSearchModal";
-import { SearchMovieModal } from "./modals/movieSearchModal";
+import { Plugin, setIcon } from "obsidian";
 import { addBookSearchCommand } from "./commands/bookSearchCommand";
 import { addMovieSearchCommand } from "./commands/movieSearchCommand";
+import { addHideFolderCommand } from "./commands/hideFolderCommand";
+import { addTabCommand } from "./commands/tabCommand";
+import { addBookRibbonIcon } from "./ribbonIcon/bookRibbonIcon";
+import { addMovieRibbonIcon } from "./ribbonIcon/movieRibbonIcon";
+import { addFolderHiderRibbonIcon } from "./ribbonIcon/folderHiderRibbonIcon";
 import { registerWikiSearchContext } from "./contexts/wikiSearchContext";
+import { FolderHider } from "./modules/folderHider";
+import { Tabs } from "./modules/tabs";
 import { ButlerSettingTab } from "./settings";
 import { ButlerSettings, ButlerPluginLike } from "./types";
-import { FolderHider } from "./features/folderHider";
-
-// Import the new styles
-// import "./style.css"; // <-- REMOVE THIS LINE
 
 const DEFAULT_SETTINGS: ButlerSettings = {
 	bookFolderPath: "Books",
@@ -19,6 +20,7 @@ const DEFAULT_SETTINGS: ButlerSettings = {
 	omdbApiKey: "fc4ed631", // Add new default
 	hiddenFolders: ["Templates"],
 	foldersHidden: true,
+	tabsHoverBorder: true,
 };
 
 export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
@@ -29,38 +31,27 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 	async onload() {
 		console.log("BookWikiPlugin loaded");
 
-		// Load settings
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		// Setup Settings
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			await this.loadData(),
+		);
 
 		// Settings tab
 		this.addSettingTab(new ButlerSettingTab(this.app, this));
 
-		// Book Search ribbon
-		this.addRibbonIcon("book", "Search Books", () => {
-			new SearchBooksModal(
-				this.app,
-				this.settings.bookFolderPath,
-				this.settings.templateFilePath
-			).open();
-			// This notice seems a bit redundant if the modal opens, but keeping as it was in original
-			new Notice("Book Search opened"); 
-		});
+		// Ribbon Icon
+		addBookRibbonIcon(this);
+		addMovieRibbonIcon(this);
+		addFolderHiderRibbonIcon(this);
 
-		// --- New Movie Search Ribbon ---
-		this.addRibbonIcon("film", "Search Movies & Series", () => {
-			if (!this.settings.omdbApiKey) {
-				new Notice("OMDb API key is missing. Please add it in the plugin settings.");
-				return;
-			}
-			new SearchMovieModal(
-				this.app,
-				this.settings.movieFolderPath,
-				this.settings.movieTemplateFilePath,
-				this.settings.omdbApiKey
-			).open();
-			new Notice("Movie Search opened");
-		});
-
+		// Commands
+		addBookSearchCommand(this);
+		addMovieSearchCommand(this);
+		addHideFolderCommand(this);
+		addTabCommand(this);
+		
 		// Wiki context menu
 		registerWikiSearchContext(this.app);
 
@@ -72,37 +63,14 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 			registerDomEvent: this.registerDomEvent.bind(this),
 		});
 
-		// --- 👁️ Create toggleable eye icon ---
-		this.folderHiderToggleIconEl = this.addRibbonIcon(
-			"eye", // Initial icon, will be updated
-			"Toggle hidden folders", // Initial tooltip, will be updated
-			async () => {
-				// Flip the flag
-				this.settings.foldersHidden = !this.settings.foldersHidden;
-				// Save and refresh folder visibility
-				await this.saveSettings();
-				this.folderHider.processFolders();
-				this.updateFolderHiderIcon(); // Update the icon
-			}
-		);
 		// Set correct initial state for icon
 		this.updateFolderHiderIcon();
-		
-		
-		addBookSearchCommand(this);
-		addMovieSearchCommand(this);
 
-
-		// --- 🧩 Command palette toggle ---
-		this.addCommand({
-			id: "toggle-hidden-folders",
-			name: "Toggle hidden folders",
-			callback: async () => {
-				this.settings.foldersHidden = !this.settings.foldersHidden;
-				await this.saveSettings();
-				this.folderHider.processFolders();
-				this.updateFolderHiderIcon(); // Update the icon
-			},
+		// Register tab
+		this.registerMarkdownCodeBlockProcessor("tab", (source, el, ctx) => {
+			const tabs = new Tabs(el, source, ctx, this.app);
+			console.log(el.parentElement);
+			ctx.addChild(tabs);
 		});
 
 		// Register layout watchers
@@ -114,29 +82,23 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 		});
 	}
 
-	/**
-	 * Updates the ribbon icon's appearance and tooltip based on the current setting.
-	 */
 	private updateFolderHiderIcon() {
 		if (!this.folderHiderToggleIconEl) return;
-		
+
 		const isHidden = this.settings.foldersHidden;
 		setIcon(this.folderHiderToggleIconEl, isHidden ? "eye-off" : "eye");
 		this.folderHiderToggleIconEl.setAttr(
 			"aria-label",
-			isHidden ? "Show hidden folders" : "Hide configured folders"
+			isHidden ? "Show hidden folders" : "Hide configured folders",
 		);
 	}
 
-	/**
-	 * Exposed method to allow settings tab to trigger a folder refresh.
-	 */
 	processFolders() {
 		this.folderHider?.processFolders();
 	}
 
 	async onunload() {
-		console.log("BookWikiPlugin unloaded");
+		console.log("Butler Plugin unloaded");
 	}
 
 	async saveSettings() {

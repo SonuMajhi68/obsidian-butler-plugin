@@ -3,14 +3,15 @@ import { ButlerSettings } from "../types";
 
 export interface FolderHiderContext {
 	app: App;
-	settings: Pick<ButlerSettings, 'hiddenFolders' | 'foldersHidden'>; // Only depend on settings we need
+	settings: Pick<ButlerSettings, "hiddenFolders" | "foldersHidden">; // Only depend on settings we need
 	saveSettings: () => Promise<void>;
-	registerDomEvent: (el: Document | HTMLElement, event: string, handler: EventListenerOrEventListenerObject) => void;
+	registerDomEvent: (
+		el: Document | HTMLElement,
+		event: string,
+		handler: EventListenerOrEventListenerObject,
+	) => void;
 }
 
-/**
- * FolderHider: hides folders in file explorer according to context.settings
- */
 export class FolderHider {
 	private ctx: FolderHiderContext;
 
@@ -18,36 +19,42 @@ export class FolderHider {
 		this.ctx = ctx;
 	}
 
-	/** Toggle hide/show and persist setting */
 	async toggleHiddenFolders() {
 		const s = this.ctx.settings;
 		s.foldersHidden = !s.foldersHidden;
-		new Notice(s.foldersHidden ? "Configured folders hidden" : "Configured folders shown");
+		new Notice(
+			s.foldersHidden
+				? "Configured folders hidden"
+				: "Configured folders shown",
+		);
 		await this.ctx.saveSettings();
 		this.processFolders();
 	}
 
-	/** Apply hide/show to currently rendered nav folders */
 	processFolders() {
 		const s = this.ctx.settings;
 		const folders = s.hiddenFolders ?? [];
 		// nothing to do
 		if (!folders || folders.length === 0) {
 			// Ensure all folders are visible if list is empty
-			document.querySelectorAll<HTMLElement>(".nav-folder.bw-hidden-folder").forEach(folderEl => {
-				folderEl.style.display = "";
-				folderEl.classList.remove("bw-hidden-folder");
-			});
+			document
+				.querySelectorAll<HTMLElement>(".nav-folder.bw-hidden-folder")
+				.forEach((folderEl) => {
+					folderEl.style.display = "";
+					folderEl.classList.remove("bw-hidden-folder");
+				});
 			return;
 		}
 
 		// Nav folder elements in Obsidian file explorer
-		const allNavFolders = document.querySelectorAll<HTMLElement>(".nav-folder");
+		const allNavFolders =
+			document.querySelectorAll<HTMLElement>(".nav-folder");
 
 		allNavFolders.forEach((folderEl) => {
-			const titleEl = folderEl.querySelector<HTMLElement>(".nav-folder-title");
+			const titleEl =
+				folderEl.querySelector<HTMLElement>(".nav-folder-title");
 			if (!titleEl) return;
-			
+
 			// Get path from data-path attribute or fall back to text content
 			let path = titleEl.getAttribute("data-path");
 			if (!path) {
@@ -64,7 +71,9 @@ export class FolderHider {
 
 				// support startswith:: and endswith:: prefixes
 				if (lowerName.startsWith("startswith::")) {
-					const seg = lowerName.substring("startswith::".length).trim();
+					const seg = lowerName
+						.substring("startswith::".length)
+						.trim();
 					if (!seg) return false;
 					return normalizedPath.startsWith(seg);
 				}
@@ -75,10 +84,12 @@ export class FolderHider {
 				}
 				// exact or path-segment match
 				const candidate = lowerName;
-				return normalizedPath === candidate || // Exact match
+				return (
+					normalizedPath === candidate || // Exact match
 					normalizedPath.endsWith(`/${candidate}`) || // Ends with /folder
 					normalizedPath.startsWith(`${candidate}/`) || // Starts with folder/
-					normalizedPath.includes(`/${candidate}/`); // Contains /folder/
+					normalizedPath.includes(`/${candidate}/`)
+				); // Contains /folder/
 			});
 
 			if (shouldHide && s.foldersHidden) {
@@ -91,18 +102,13 @@ export class FolderHider {
 		});
 	}
 
-	/** Register watchers so changes in layout / clicks re-apply hiding */
 	registerWatchers() {
 		const { app, registerDomEvent } = this.ctx;
-		
-		// On layout ready, apply hiding once
-		// This is now handled in main.ts, but leaving watcher logic here is fine
+
 		app.workspace.onLayoutReady(() => {
 			window.setTimeout(() => this.processFolders(), 80);
 		});
 
-		// Re-apply when the document is clicked (folder expand/collapse sometimes needs this)
-		// Use a slight delay to allow DOM to update first
 		registerDomEvent(document, "click", (e: MouseEvent) => {
 			// Only process if the click was on a folder title
 			if ((e.target as HTMLElement)?.closest(".nav-folder-title")) {

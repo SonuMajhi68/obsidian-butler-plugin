@@ -1,9 +1,10 @@
 import { App } from "obsidian";
 
 export interface ButlerSettings {
+	//Book settings
 	bookFolderPath: string;
 	templateFilePath: string;
-	
+
 	// Movie settings
 	movieFolderPath: string;
 	movieTemplateFilePath: string;
@@ -12,6 +13,9 @@ export interface ButlerSettings {
 	// Folder hider settings
 	hiddenFolders: string[];
 	foldersHidden: boolean;
+
+	// Tab settings
+	tabsHoverBorder: boolean;
 }
 
 /**
@@ -22,8 +26,5 @@ export interface ButlerPluginLike {
 	app: App;
 	settings: ButlerSettings;
 	saveSettings: () => Promise<void>;
-	/** * Optional wrapper method (added in main.ts) to trigger
-	 * the folderHider to re-process folders.
-	 */
 	processFolders?: () => void;
 }

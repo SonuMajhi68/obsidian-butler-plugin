@@ -1,4 +1,7 @@
+/* --- ----------------- --- */
 /* --- Book Search Modal --- */
+/* --- ----------------- --- */
+
 .book-search-modal .modal-content {
 	padding: 20px;
 	display: flex;
@@ -56,8 +59,71 @@
 	font-weight: 600;
 }
 
+/* --- ------------------ --- */
+/* --- Movie Search Modal --- */
+/* --- ------------------ --- */
 
+.movie-search-modal .modal-content {
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	max-height: 80vh;
+}
+
+.movie-search-modal .search-container {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 10px;
+}
+
+.movie-search-modal .search-container input[type="text"] {
+	flex: 1;
+	padding: 8px;
+}
+
+.movie-search-modal .search-container button.search-btn {
+	padding: 8px 16px;
+	font-size: 14px;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+	background-color: var(--interactive-accent);
+	color: var(--text-on-accent);
+	transition: opacity 0.2s ease;
+}
+
+.movie-search-modal .search-container button.search-btn:hover {
+	opacity: 0.85;
+}
+
+.movie-search-modal .results-container {
+	flex: 1;
+	overflow-y: auto;
+	max-height: 60vh;
+	margin-top: 10px;
+}
+
+.movie-search-modal .result-card {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	padding: 10px;
+	margin-bottom: 10px;
+	background-color: var(--background-secondary);
+	cursor: pointer;
+}
+
+.movie-search-modal .result-card:hover {
+	background-color: var(--background-secondary-alt);
+}
+
+.movie-search-modal .result-card-title {
+	font-weight: 600;
+}
+
+/* --- ----------------- --- */
 /* --- Wiki Search Modal --- */
+/* --- ----------------- --- */
+
 .wiki-search-modal .search-container {
 	display: flex;
 	gap: 8px;
@@ -103,4 +169,70 @@
 .wiki-search-modal .result-row-snippet {
 	color: var(--text-muted);
 	font-size: var(--font-ui-small);
+}
+
+/* --- ----------------- --- */
+/* --- Tab Style Setting --- */
+/* --- ----------------- --- */
+
+.butler-tab-container {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	overflow: hidden;
+	margin: 1em 0;
+	background-color: var(--background-primary);
+}
+
+/* Header Bar */
+.butler-tab-header {
+	display: flex;
+	overflow-x: auto;
+	overflow-y: hidden;
+	background-color: var(--background-secondary);
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* Individual Tab Button */
+.butler-tab-btn {
+	padding: 8px 16px;
+	cursor: pointer;
+	font-weight: 600;
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+	border-right: 1px solid var(--background-modifier-border);
+	transition:
+		background-color 0.1s ease,
+		color 0.1s ease;
+	white-space: nowrap;
+}
+
+.butler-tab-btn:hover {
+	background-color: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* Active Tab Button */
+.butler-tab-btn.active {
+	background-color: var(--background-primary);
+	color: var(--text-accent);
+	border-bottom: 1px solid transparent; /* Hides the bottom border to merge with content */
+	margin-bottom: -1px; /* Pushes it down to cover the container border */
+	z-index: 1;
+}
+
+/* Content Area */
+.butler-tab-content-container {
+	padding: 16px;
+	background-color: var(--background-primary);
+}
+
+/* Handle nested code blocks cleanly */
+.butler-tab-content pre {
+	margin-top: 0;
+}
+
+body.hide-boder
+	.markdown-source-view.mod-cm6
+	div:has(> .butler-tab-container):has(> .edit-block-button):hover {
+	box-shadow: none;
 }

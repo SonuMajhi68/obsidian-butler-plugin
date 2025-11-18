@@ -1,11 +1,11 @@
 import { TAbstractFile, TFolder, App } from "obsidian";
 import { AbstractInputSuggest } from "obsidian";
 
-/**
- * Suggests TFolders (directories) based on user input.
- */
 export class FolderSuggest extends AbstractInputSuggest<TFolder> {
-	constructor(app: App, private inputEl: HTMLInputElement) {
+	constructor(
+		app: App,
+		private inputEl: HTMLInputElement,
+	) {
 		super(app, inputEl);
 	}
 
@@ -24,7 +24,7 @@ export class FolderSuggest extends AbstractInputSuggest<TFolder> {
 		});
 
 		// Always include root
-		if ("/".includes(lowerQuery) && !folders.find(f => f.path === "/")) {
+		if ("/".includes(lowerQuery) && !folders.find((f) => f.path === "/")) {
 			const root = this.app.vault.getRoot();
 			if (root) folders.unshift(root);
 		}
