@@ -10,15 +10,15 @@ import { registerWikiSearchContext } from "./contexts/wikiSearchContext";
 import { FolderHider } from "./modules/folderHider";
 import { Tabs } from "./modules/tabs";
 import { ButlerSettingTab } from "./settings";
-import { ButlerSettings, ButlerPluginLike } from "./types";
+import { ButlerSettings, ButlerPluginLike } from "./utils/types";
 
 // import { TemplateSelectModal } from "./modals/templateSelectModal";
 
 const DEFAULT_SETTINGS: ButlerSettings = {
 	bookFolderPath: "Books",
-	bookTemplates: ["Templates/book.md"], // Update this line
+	bookTemplates: ["Templates/book.md"],
 	movieFolderPath: "Movies",
-	movieTemplateFilePath: "Templates/movie.md",
+	movieTemplates: ["Templates/movie.md"], // Changed here
 	omdbApiKey: "",
 	hiddenFolders: ["Templates"],
 	foldersHidden: true,
@@ -53,7 +53,7 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 		addMovieSearchCommand(this);
 		addHideFolderCommand(this);
 		addTabCommand(this);
-		
+
 		// Wiki context menu
 		registerWikiSearchContext(this.app, this);
 
@@ -85,7 +85,7 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 		});
 	}
 
-	private updateFolderHiderIcon() {
+	updateFolderHiderIcon() {
 		if (!this.folderHiderToggleIconEl) return;
 
 		const isHidden = this.settings.foldersHidden;
@@ -95,8 +95,8 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 			isHidden ? "Show hidden folders" : "Hide configured folders",
 		);
 	}
-	
-	private updateTabHoverBorder(value:boolean){
+
+	private updateTabHoverBorder(value: boolean) {
 		if (value) {
 			document.body.addClass("hide-boder");
 		} else {

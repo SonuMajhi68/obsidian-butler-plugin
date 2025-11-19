@@ -1,4 +1,5 @@
-// commands/bookSearchCommand.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { SearchBooksModal } from '../modals/bookSearchModal';
 
 export function addBookSearchCommand(plugin: any) {

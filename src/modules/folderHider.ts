@@ -1,5 +1,5 @@
 import { App, Notice } from "obsidian";
-import { ButlerSettings } from "../types";
+import { ButlerSettings } from "../utils/types";
 
 export interface FolderHiderContext {
 	app: App;

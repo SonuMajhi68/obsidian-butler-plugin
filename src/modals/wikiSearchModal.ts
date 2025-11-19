@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { App, Modal, Notice, MarkdownView, Editor } from "obsidian";
 
 export class WikiSearchModal extends Modal {
@@ -19,7 +21,10 @@ export class WikiSearchModal extends Modal {
 			}
 
 			// Fallback to initial selection
-			if (this.initialSelection && String(this.initialSelection).trim() !== "") {
+			if (
+				this.initialSelection &&
+				String(this.initialSelection).trim() !== ""
+			) {
 				return String(this.initialSelection);
 			}
 
@@ -38,7 +43,7 @@ export class WikiSearchModal extends Modal {
 
 	onOpen() {
 		const { contentEl } = this;
-		this.modalEl.addClass('wiki-search-modal');
+		this.modalEl.addClass("wiki-search-modal");
 		contentEl.empty();
 
 		contentEl.createEl("h2", { text: "Search Wikipedia" });
@@ -52,14 +57,14 @@ export class WikiSearchModal extends Modal {
 		});
 		input.value = (this.initialSelection || "").toString();
 
-		const searchBtn = container.createEl("button", { 
+		const searchBtn = container.createEl("button", {
 			text: "Search",
-			cls: "search-btn"
+			cls: "search-btn",
 		});
 
 		// Results container
 		const resultsContainer = contentEl.createDiv({
-			cls: "results-container"
+			cls: "results-container",
 		});
 
 		const performSearch = async () => {
@@ -74,7 +79,7 @@ export class WikiSearchModal extends Modal {
 
 			try {
 				const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(
-					query
+					query,
 				)}&utf8=&format=json&origin=*`;
 
 				const res = await fetch(url);
@@ -87,7 +92,9 @@ export class WikiSearchModal extends Modal {
 
 				const results = data?.query?.search;
 				if (!results || results.length === 0) {
-					resultsContainer.createEl("p", { text: "No results found." });
+					resultsContainer.createEl("p", {
+						text: "No results found.",
+					});
 					return;
 				}
 
@@ -97,10 +104,15 @@ export class WikiSearchModal extends Modal {
 						? item.snippet.replace(/<\/?[^>]+(>|$)/g, "") // Basic snippet cleaning
 						: "";
 
-					const row = resultsContainer.createDiv({ cls: "result-row" });
+					const row = resultsContainer.createDiv({
+						cls: "result-row",
+					});
 
 					row.createEl("strong", { text: title });
-					row.createEl("div", { text: snippet, cls: "result-row-snippet" });
+					row.createEl("div", {
+						text: snippet,
+						cls: "result-row-snippet",
+					});
 
 					row.onclick = () => {
 						const selectedText = this.getCurrentSelection().trim();
@@ -109,17 +121,25 @@ export class WikiSearchModal extends Modal {
 							return;
 						}
 
-						const wikiUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`;
+						const wikiUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, "_"))}`;
 						const markdownLink = `[${selectedText}](${wikiUrl})`;
 
 						try {
 							// Use the editor instance we were given
-							if (this.editor && typeof this.editor.replaceSelection === "function") {
+							if (
+								this.editor &&
+								typeof this.editor.replaceSelection ===
+									"function"
+							) {
 								this.editor.replaceSelection(markdownLink);
 							} else {
 								// Fallback just in case
-								const mv = this.app.workspace.getActiveViewOfType(MarkdownView);
-								if (mv && mv.editor) mv.editor.replaceSelection(markdownLink);
+								const mv =
+									this.app.workspace.getActiveViewOfType(
+										MarkdownView,
+									);
+								if (mv && mv.editor)
+									mv.editor.replaceSelection(markdownLink);
 							}
 							new Notice(`Linked "${selectedText}" to ${title}`);
 							this.close();

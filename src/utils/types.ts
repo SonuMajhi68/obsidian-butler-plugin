@@ -1,15 +1,13 @@
 import { App } from "obsidian";
 
-// Remove the BookTemplate interface entirely
-
 export interface ButlerSettings {
 	// Book settings
 	bookFolderPath: string;
-	bookTemplates: string[]; // Changed from BookTemplate[] to string[]
+	bookTemplates: string[];
 
 	// Movie settings
 	movieFolderPath: string;
-	movieTemplateFilePath: string;
+	movieTemplates: string[]; // Changed from movieTemplateFilePath to string[]
 	omdbApiKey: string;
 
 	// Folder hider settings
@@ -25,4 +23,5 @@ export interface ButlerPluginLike {
 	settings: ButlerSettings;
 	saveSettings: () => Promise<void>;
 	processFolders?: () => void;
+	updateFolderHiderIcon?: () => void;
 }

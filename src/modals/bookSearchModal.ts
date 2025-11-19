@@ -1,4 +1,3 @@
-// modals/bookSearchModal.ts
 import { App, Modal, Notice, TFile, normalizePath } from "obsidian";
 import { OpenLibraryApi, OpenLibrarySearchItem } from "../apis/openLibraryApi";
 import { TemplateSelectModal } from "./templateSelectModal";

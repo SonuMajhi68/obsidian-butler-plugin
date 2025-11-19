@@ -1,4 +1,5 @@
-// import { Notice } from "obsidian";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { SearchBooksModal } from "src/modals/bookSearchModal";
 
 export function addBookRibbonIcon(plugin: any) {

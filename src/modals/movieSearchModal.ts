@@ -1,27 +1,33 @@
 import { App, Modal, Notice, TFile, normalizePath } from "obsidian";
 import { OmdbApi, OMDbSearchItem } from "../apis/omdbApi";
+import { TemplateSelectModal } from "./templateSelectModal"; // Import the shared modal
 
 export class SearchMovieModal extends Modal {
 	private savePath: string;
-	private templatePath: string;
+	private templates: string[]; // Changed to array
 	private api: OmdbApi;
 
-	constructor(app: App, savePath: string, templatePath: string, apiKey: string) {
+	constructor(
+		app: App,
+		savePath: string,
+		templates: string[],
+		apiKey: string,
+	) {
 		super(app);
 		this.savePath = savePath;
-		this.templatePath = templatePath;
+		this.templates = templates;
 		this.api = new OmdbApi(apiKey);
 	}
 
 	onOpen() {
 		const { contentEl } = this;
-		this.modalEl.addClass('movie-search-modal');
+		this.modalEl.addClass("movie-search-modal");
 		contentEl.empty();
 
 		contentEl.createEl("h2", { text: "Search Movies & Series" });
 
 		const searchContainer = contentEl.createDiv({
-			cls: "search-container"
+			cls: "search-container",
 		});
 
 		const input = searchContainer.createEl("input", {
@@ -29,14 +35,15 @@ export class SearchMovieModal extends Modal {
 			placeholder: "Enter movie or series title...",
 		});
 
-		const searchBtn = searchContainer.createEl("button", { 
+		// Auto focus
+		setTimeout(() => input.focus(), 50);
+
+		const searchBtn = searchContainer.createEl("button", {
 			text: "Search",
-			cls: "search-btn"
+			cls: "search-btn",
 		});
 
-		const resultsEl = contentEl.createDiv({
-			cls: "results-container"
-		});
+		const resultsEl = contentEl.createDiv({ cls: "results-container" });
 
 		const performSearch = async () => {
 			const value = input.value.trim();
@@ -52,42 +59,66 @@ export class SearchMovieModal extends Modal {
 				resultsEl.empty();
 
 				if (!results || results.length === 0) {
-					resultsEl.createEl("p", { text: "No movies or series found." });
+					resultsEl.createEl("p", {
+						text: "No movies or series found.",
+					});
 					return;
 				}
 
 				results.forEach((doc: OMDbSearchItem) => {
-					const card = resultsEl.createDiv({
-						cls: "result-card"
-					});
-
-					// Add poster image
-					// if (doc.Poster && doc.Poster !== "N/A") {
-					// 	// --- FIX: Move 'src' into the 'attr' object ---
-					// 	card.createEl("img", {
-					// 		cls: "result-card-poster",
-					// 		attr: {
-					// 			src: doc.Poster
-					// 		}
-					// 	});
-					// 	// ----------------------------------------------
-					// }
-
+					const card = resultsEl.createDiv({ cls: "result-card" });
 					const infoEl = card.createDiv({ cls: "result-card-info" });
-					infoEl.createEl("div", { text: doc.Title, cls: "result-card-title" });
+
+					infoEl.createEl("div", {
+						text: doc.Title,
+						cls: "result-card-title",
+					});
 					infoEl.createEl("div", { text: `Year: ${doc.Year}` });
 					infoEl.createEl("div", { text: `Type: ${doc.Type}` });
 
 					card.onclick = async () => {
-						new Notice(`Fetching details for "${doc.Title}"...`);
-						this.close(); // Close search modal
-						await this.saveMovieDetailsToVault(doc.imdbID);
+						if (this.templates.length === 0) {
+							new Notice(
+								"No movie templates configured in settings.",
+							);
+							return;
+						}
+
+						// Define the function to run after template selection
+						const handleSelection = async (
+							templatePath: string,
+						) => {
+							new Notice(
+								`Fetching details for "${doc.Title}"...`,
+							);
+							this.close();
+							await this.saveMovieDetailsToVault(
+								doc.imdbID,
+								templatePath,
+							);
+						};
+
+						if (this.templates.length === 1) {
+							// Auto-select if only one exists
+							await handleSelection(this.templates[0]);
+						} else {
+							// Open the shared TemplateSelectModal
+							new TemplateSelectModal(
+								this.app,
+								this.templates,
+								(selectedPath) => {
+									handleSelection(selectedPath);
+								},
+							).open();
+						}
 					};
 				});
 			} catch (err) {
 				console.error("Movie search failed:", err);
 				resultsEl.empty();
-				resultsEl.createEl("p", { text: `Error: ${err.message}. Check console.` });
+				resultsEl.createEl("p", {
+					text: `Error: ${err.message}. Check console.`,
+				});
 			}
 		};
 
@@ -97,11 +128,11 @@ export class SearchMovieModal extends Modal {
 		});
 	}
 
-	async saveMovieDetailsToVault(imdbID: string) {
+	// Added templatePath parameter
+	async saveMovieDetailsToVault(imdbID: string, templatePath: string) {
 		try {
 			const movieData = await this.api.getById(imdbID);
 
-			// 1. Create replacements map
 			const replacements: Record<string, string> = {
 				title: movieData.Title,
 				year: movieData.Year,
@@ -119,42 +150,43 @@ export class SearchMovieModal extends Modal {
 				json: JSON.stringify(movieData, null, 2),
 			};
 
-			// 2. Sanitize file path
-			const sanitizedTitle = movieData.Title.replace(/[\\/:*?"<>|]/g, "_");
+			const sanitizedTitle = movieData.Title.replace(
+				/[\\/:*?"<>|]/g,
+				"_",
+			);
 			const dirPath = normalizePath(this.savePath);
 			const filePath = normalizePath(`${dirPath}/${sanitizedTitle}.md`);
 
-			// 3. Create folder if needed
 			if (!(await this.app.vault.adapter.exists(dirPath))) {
 				await this.app.vault.createFolder(dirPath);
 			}
 
-			// 4. Get template content
 			let templateContent = "";
-			const defaultTemplate = "---\ntitle: {{title}}\nyear: {{year}}\nrating: {{rating}}\ndirector: {{director}}\nimage: {{image}}\nurl: {{url}}\n---\n\n## Plot\n{{plot}}\n\n## Details\n- **Genre**: {{genres}}\n- **Writer**: {{writer}}\n- **Actors**: {{actor}}\n- **Studio**: {{studio}}\n- **Duration**: {{duration}}\n- **Premiere**: {{premiere}}\n\n## JSON\n```json\n{{json}}\n```\n";
-			
+			const defaultTemplate =
+				"---\ntitle: {{title}}\nyear: {{year}}\nrating: {{rating}}\n---\n\n# {{title}}\n\n![Poster]({{image}})\n\n## Plot\n{{plot}}\n";
+
 			try {
-				const file = this.app.vault.getAbstractFileByPath(this.templatePath);
+				// Use the selected templatePath
+				const file = this.app.vault.getAbstractFileByPath(templatePath);
 				if (file instanceof TFile) {
 					templateContent = await this.app.vault.read(file);
 				} else {
-					new Notice(`Invalid movie template path: ${this.templatePath}. Using default template.`);
+					new Notice(
+						`Invalid movie template path: ${templatePath}. Using default.`,
+					);
 					templateContent = defaultTemplate;
 				}
 			} catch (e) {
 				console.error("Error reading movie template:", e);
-				new Notice(`Template file not found at: ${this.templatePath}. Using default template.`);
 				templateContent = defaultTemplate;
 			}
 
-			// 5. Fill template
 			let filled = templateContent;
 			for (const key in replacements) {
 				const regex = new RegExp(`{{\\s*${key}\\s*}}`, "gi");
-				filled = filled.replace(regex, replacements[key] ?? ""); // Ensure null/undefined doesn't break replace
+				filled = filled.replace(regex, replacements[key] ?? "");
 			}
 
-			// 6. Create or modify file
 			const existing = this.app.vault.getAbstractFileByPath(filePath);
 			if (existing instanceof TFile) {
 				await this.app.vault.modify(existing, filled);
@@ -164,16 +196,13 @@ export class SearchMovieModal extends Modal {
 				new Notice(`Saved "${movieData.Title}" to vault.`);
 			}
 
-			// 7. Open the file
 			const fileToOpen = this.app.vault.getAbstractFileByPath(filePath);
 			if (fileToOpen instanceof TFile) {
-				const leaf = this.app.workspace.getLeaf(false); // Open in new leaf if possible
-				await leaf.openFile(fileToOpen);
+				this.app.workspace.getLeaf(false).openFile(fileToOpen);
 			}
-
 		} catch (err) {
 			console.error("Error saving movie details:", err);
-			new Notice(`Error saving details: ${err.message}. Check console.`);
+			new Notice(`Error saving details: ${err.message}.`);
 		}
 	}
 

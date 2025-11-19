@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { requestUrl, RequestUrlParam } from "obsidian";
 
 export interface OpenLibrarySearchItem {
@@ -25,11 +27,6 @@ export class OpenLibraryApi {
 		// OpenLibrary doesn't require an API key for this endpoint
 	}
 
-	/**
-	 * Searches the OpenLibrary API by title.
-	 * @param title The title to search for.
-	 * @returns A promise that resolves to the search response.
-	 */
 	async searchByTitle(title: string): Promise<OpenLibrarySearchResponse> {
 		const url = new URL(this.baseUrl);
 		url.pathname = "/search.json";
@@ -40,11 +37,6 @@ export class OpenLibraryApi {
 		return response.json as OpenLibrarySearchResponse;
 	}
 
-	/**
-	 * Gets detailed book information by its OpenLibrary key.
-	 * @param key The book's key (e.g., "/works/OL45804W").
-	 * @returns A promise that resolves to the detailed book data.
-	 */
 	async getByKey(key: string): Promise<OpenLibraryBookResult> {
 		const url = new URL(this.baseUrl);
 		url.pathname = `${key}.json`; // The key already includes the leading slash
@@ -53,11 +45,6 @@ export class OpenLibraryApi {
 		return response.json as OpenLibraryBookResult;
 	}
 
-	/**
-	 * A private helper to make requests using Obsidian's requestUrl.
-	 * @param url The URL to request.
-	 * @returns A promise that resolves to the request response.
-	 */
 	private async makeRequest(url: URL) {
 		const requestParams: RequestUrlParam = {
 			url: url.toString(),

@@ -7,11 +7,10 @@ export function addMovieSearchCommand(plugin: any) {
 		id: 'butler-search-movies',
 		name: 'Search and Create Movie Note',
 		callback: () => {
-			// Uses the dedicated movie paths from the updated settings interface
 			new SearchMovieModal(
 				plugin.app,
 				plugin.settings.movieFolderPath,
-				plugin.settings.movieTemplatePath,
+				plugin.settings.movieTemplates, // Pass the array
 				plugin.settings.omdbApiKey
 			).open();
 		}
