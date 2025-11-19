@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, PluginSettingTab, Setting, Notice } from "obsidian";
 import { FolderSuggest } from "./utils/folderSuggest";
 import { FileSuggest } from "./utils/fileSuggest";
 import { ButlerPluginLike } from "./types";
@@ -9,7 +7,7 @@ export class ButlerSettingTab extends PluginSettingTab {
 	plugin: ButlerPluginLike;
 
 	constructor(app: App, plugin: ButlerPluginLike) {
-		super(app, plugin as any); 
+		super(app, plugin as any);
 		this.plugin = plugin;
 	}
 
@@ -17,12 +15,11 @@ export class ButlerSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl("h1", { text: "Add Books Settings" });
+		containerEl.createEl("h1", { text: "Book Settings" });
 
-		// Book folder path
 		new Setting(containerEl)
 			.setName("Book folder path")
-			.setDesc("Select the folder where new book notes will be created")
+			.setDesc("Where new book notes will be created")
 			.addSearch((cb) => {
 				new FolderSuggest(this.app, cb.inputEl);
 				cb.setPlaceholder("Example: Books/")
@@ -33,19 +30,68 @@ export class ButlerSettingTab extends PluginSettingTab {
 					});
 			});
 
-		// Template file path
-		new Setting(containerEl)
-			.setName("Book template file path")
-			.setDesc("Select the template to use for new book notes")
+		new Setting(containerEl).setName("Book Templates").setHeading();
+
+		const templatesDiv = containerEl.createDiv({cls: "setting-template-list"});
+
+		// Function to render the list
+		const drawTemplates = () => {
+			templatesDiv.empty();
+			this.plugin.settings.bookTemplates.forEach(
+				(templatePath, index) => {
+					new Setting(templatesDiv)
+						.setName(templatePath)
+						.addButton((btn) => {
+							btn.setIcon("trash")
+								.setTooltip("Remove template")
+								.onClick(async () => {
+									this.plugin.settings.bookTemplates.splice(
+										index,
+										1,
+									);
+									await this.plugin.saveSettings();
+									drawTemplates(); // Re-render list
+								});
+						});
+				},
+			);
+		};
+
+		drawTemplates();
+
+		// Add New Template Section
+		const addContainer = containerEl.createDiv();
+		let newPath = "";
+
+		new Setting(addContainer)
+			.setName("Template File")
+			.setDesc("Add Template path to the list.")
 			.addSearch((cb) => {
 				new FileSuggest(this.app, cb.inputEl);
-				cb.setPlaceholder("Example: Templates/book.md")
-					.setValue(this.plugin.settings.templateFilePath)
-					.onChange(async (newValue) => {
-						this.plugin.settings.templateFilePath = newValue;
-						await this.plugin.saveSettings();
-					});
+				cb.setPlaceholder("Templates/technical.md");
+				cb.onChange((val) => (newPath = val));
 			});
+
+		new Setting(addContainer).addButton((btn) =>
+			btn
+				.setButtonText("Add Template")
+				.setCta()
+				.onClick(async () => {
+					if (!newPath.trim()) {
+						new Notice("Template path is required.");
+						return;
+					}
+
+					// Directly push the string
+					this.plugin.settings.bookTemplates.push(newPath.trim());
+
+					await this.plugin.saveSettings();
+
+					// Clear input
+					newPath = "";
+					this.display();
+				}),
+		);
 
 		// --- Movie Search Settings ---
 		containerEl.createEl("h1", { text: "Movie & Series Search Settings" });

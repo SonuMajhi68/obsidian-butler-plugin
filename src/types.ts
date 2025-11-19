@@ -1,9 +1,11 @@
 import { App } from "obsidian";
 
+// Remove the BookTemplate interface entirely
+
 export interface ButlerSettings {
-	//Book settings
+	// Book settings
 	bookFolderPath: string;
-	templateFilePath: string;
+	bookTemplates: string[]; // Changed from BookTemplate[] to string[]
 
 	// Movie settings
 	movieFolderPath: string;
@@ -18,10 +20,6 @@ export interface ButlerSettings {
 	tabsHoverBorder: boolean;
 }
 
-/**
- * Defines the interface for the main plugin class,
- * allowing the settings tab to interact with it abstractly.
- */
 export interface ButlerPluginLike {
 	app: App;
 	settings: ButlerSettings;

@@ -12,12 +12,14 @@ import { Tabs } from "./modules/tabs";
 import { ButlerSettingTab } from "./settings";
 import { ButlerSettings, ButlerPluginLike } from "./types";
 
+// import { TemplateSelectModal } from "./modals/templateSelectModal";
+
 const DEFAULT_SETTINGS: ButlerSettings = {
 	bookFolderPath: "Books",
-	templateFilePath: "Templates/book.md",
-	movieFolderPath: "Movies", // Add new default
-	movieTemplateFilePath: "Templates/movie.md", // Add new default
-	omdbApiKey: "fc4ed631", // Add new default
+	bookTemplates: ["Templates/book.md"], // Update this line
+	movieFolderPath: "Movies",
+	movieTemplateFilePath: "Templates/movie.md",
+	omdbApiKey: "",
 	hiddenFolders: ["Templates"],
 	foldersHidden: true,
 	tabsHoverBorder: true,

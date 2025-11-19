@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
+// commands/bookSearchCommand.ts
 import { SearchBooksModal } from '../modals/bookSearchModal';
 
 export function addBookSearchCommand(plugin: any) {
@@ -10,7 +9,7 @@ export function addBookSearchCommand(plugin: any) {
 			new SearchBooksModal(
 				plugin.app,
 				plugin.settings.bookFolderPath,
-				plugin.settings.templateFilePath
+				plugin.settings.bookTemplates // Pass the array
 			).open();
 		}
 	});

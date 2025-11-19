@@ -236,3 +236,20 @@ body.hide-boder
 	div:has(> .butler-tab-container):has(> .edit-block-button):hover {
 	box-shadow: none;
 }
+
+
+/* --- ------------ --- */
+/* --- Setting Page --- */
+/* --- ------------ --- */
+
+.setting-template-list {
+	border : 1px solid var(--background-modifier-border);
+	padding : 24px;
+	border-Radius : 6px;
+	margin-Top : 10px;
+	margin-bottom: 20px;
+}
+
+.setting-template-list > :last-child {
+    padding-bottom: 0;
+}
