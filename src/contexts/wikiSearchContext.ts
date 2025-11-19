@@ -1,8 +1,9 @@
-import { App, Notice, Editor, MarkdownView } from "obsidian";
+import { App, Notice, Editor, MarkdownView, Plugin } from "obsidian";
 import { WikiSearchModal } from "../modals/wikiSearchModal";
 
-export function registerWikiSearchContext(app: App) {
-	app.workspace.on(
+export function registerWikiSearchContext(app: App, plugin: Plugin) {
+	// Use plugin.registerEvent so it auto-unloads later
+	const eventRef = app.workspace.on(
 		"editor-menu",
 		(menu, editor: Editor, view: MarkdownView) => {
 			menu.addItem((item) => {
@@ -25,4 +26,6 @@ export function registerWikiSearchContext(app: App) {
 			});
 		},
 	);
+
+	plugin.registerEvent(eventRef);
 }

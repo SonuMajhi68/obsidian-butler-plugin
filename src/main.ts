@@ -53,7 +53,7 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 		addTabCommand(this);
 		
 		// Wiki context menu
-		registerWikiSearchContext(this.app);
+		registerWikiSearchContext(this.app, this);
 
 		// Initialize FolderHider
 		this.folderHider = new FolderHider({
@@ -65,6 +65,7 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 
 		// Set correct initial state for icon
 		this.updateFolderHiderIcon();
+		this.updateTabHoverBorder(this.settings.tabsHoverBorder);
 
 		// Register tab
 		this.registerMarkdownCodeBlockProcessor("tab", (source, el, ctx) => {
@@ -91,6 +92,14 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 			"aria-label",
 			isHidden ? "Show hidden folders" : "Hide configured folders",
 		);
+	}
+	
+	private updateTabHoverBorder(value:boolean){
+		if (value) {
+			document.body.addClass("hide-boder");
+		} else {
+			document.body.removeClass("hide-boder");
+		}
 	}
 
 	processFolders() {
