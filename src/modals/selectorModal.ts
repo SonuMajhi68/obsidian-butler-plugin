@@ -1,7 +1,7 @@
 import { App, FuzzySuggestModal } from "obsidian";
 // Remove BookTemplate import
 
-export class TemplateSelectModal extends FuzzySuggestModal<string> {
+export class SelectorModal extends FuzzySuggestModal<string> {
 	private templates: string[];
 	private onChoose: (templatePath: string) => void;
 

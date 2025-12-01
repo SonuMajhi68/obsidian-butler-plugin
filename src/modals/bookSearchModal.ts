@@ -1,15 +1,15 @@
 import { App, Modal, Notice, TFile, normalizePath } from "obsidian";
 import { OpenLibraryApi, OpenLibrarySearchItem } from "../apis/openLibraryApi";
-import { TemplateSelectModal } from "./templateSelectModal";
+import { SelectorModal } from "./selectorModal";
 
 export class SearchBooksModal extends Modal {
-	private savePath: string;
+	private savePaths: string[];
 	private templates: string[]; // Changed to string[]
 	private api: OpenLibraryApi;
 
-	constructor(app: App, savePath: string, templates: string[]) {
+	constructor(app: App, savePaths: string[], templates: string[]) {
 		super(app);
-		this.savePath = savePath;
+		this.savePaths = savePaths;
 		this.templates = templates;
 		this.api = new OpenLibraryApi();
 	}
@@ -82,8 +82,10 @@ export class SearchBooksModal extends Modal {
 							return;
 						}
 
-						const handleSelection = async (
+						// Handle after both template & folder have been selected
+						const proceedSave = async (
 							templatePath: string,
+							folderPath: string,
 						) => {
 							new Notice(`Fetching details for "${title}"...`);
 							this.close();
@@ -94,18 +96,51 @@ export class SearchBooksModal extends Modal {
 								String(year),
 								publishers,
 								templatePath,
+								folderPath,
 							);
 						};
 
+						// Function to choose folder (if multiple)
+						const chooseFolderThenSave = async (
+							templatePath: string,
+						) => {
+							if (
+								!this.savePaths ||
+								this.savePaths.length === 0
+							) {
+								new Notice(
+									"No save folders configured in settings.",
+								);
+								return;
+							}
+							if (this.savePaths.length === 1) {
+								await proceedSave(
+									templatePath,
+									this.savePaths[0],
+								);
+							} else {
+								new SelectorModal(
+									this.app,
+									this.savePaths,
+									(selectedFolder) => {
+										proceedSave(
+											templatePath,
+											selectedFolder,
+										);
+									},
+								).open();
+							}
+						};
+
+						// Template selection handling
 						if (this.templates.length === 1) {
-							await handleSelection(this.templates[0]);
+							await chooseFolderThenSave(this.templates[0]);
 						} else {
-							// If multiple, open selection modal
-							new TemplateSelectModal(
+							new SelectorModal(
 								this.app,
 								this.templates,
-								(selectedPath) => {
-									handleSelection(selectedPath);
+								(selectedTemplate) => {
+									chooseFolderThenSave(selectedTemplate);
 								},
 							).open();
 						}
@@ -132,6 +167,7 @@ export class SearchBooksModal extends Modal {
 		year: string,
 		publisher: string,
 		templatePath: string,
+		folderPath: string,
 	) {
 		try {
 			const bookData = await this.api.getByKey(key);
@@ -141,7 +177,7 @@ export class SearchBooksModal extends Modal {
 			const url = `https://openlibrary.org${key}`;
 
 			const sanitizedTitle = title.replace(/[\\/:*?"<>|]/g, "_");
-			const dirPath = normalizePath(this.savePath);
+			const dirPath = normalizePath(folderPath);
 			const filePath = normalizePath(`${dirPath}/${sanitizedTitle}.md`);
 
 			if (!(await this.app.vault.adapter.exists(dirPath))) {

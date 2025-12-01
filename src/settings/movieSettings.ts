@@ -24,25 +24,85 @@ export function renderMovieSettings(
 				}),
 		);
 
-	// Movie folder path
-	new Setting(containerEl)
-		.setName("Movie folder path")
-		.setDesc(
-			"Select the folder where new movie/series notes will be created",
-		)
+	// Movie folder paths list UI (multiple)
+	new Setting(containerEl).setName("Movie Folders").setHeading();
+
+	const movieFoldersContainer = containerEl.createDiv({
+		cls: "setting-list-container",
+	});
+
+	const movieFoldersDiv = movieFoldersContainer.createDiv({
+		cls: "setting-template-list",
+	});
+
+	const drawMovieFolders = () => {
+		movieFoldersDiv.empty();
+
+		if (
+			!plugin.settings.movieFolderPaths ||
+			plugin.settings.movieFolderPaths.length === 0
+		) {
+			movieFoldersDiv.createDiv({
+				text: "No folder added",
+				cls: "setting-template-empty-msg",
+			});
+			return;
+		}
+
+		(plugin.settings.movieFolderPaths ?? []).forEach((path, index) => {
+			new Setting(movieFoldersDiv).setName(path).addButton((btn) => {
+				btn.setIcon("trash")
+					.setTooltip("Remove folder")
+					.onClick(async () => {
+						plugin.settings.movieFolderPaths.splice(index, 1);
+						await plugin.saveSettings();
+						drawMovieFolders();
+					});
+			});
+		});
+	};
+
+	drawMovieFolders();
+
+	// Add New Movie Folder Section
+	const addContainer = movieFoldersContainer.createDiv();
+	let newMovieFolderPath = "";
+
+	new Setting(addContainer)
+		.setName("Folder Path")
+		.setDesc("Add folder path where new movie/series notes can be saved.")
 		.addSearch((cb) => {
 			new FolderSuggest(app, cb.inputEl);
-			cb.setPlaceholder("Example: Movies/")
-				.setValue(plugin.settings.movieFolderPath)
-				.onChange(async (newValue) => {
-					plugin.settings.movieFolderPath = newValue;
-					await plugin.saveSettings();
-				});
+			cb.setPlaceholder("Movies/").onChange(
+				(val) => (newMovieFolderPath = val),
+			);
 		});
+
+	new Setting(addContainer).addButton((btn) =>
+		btn
+			.setButtonText("Add Folder")
+			.setCta()
+			.onClick(async () => {
+				if (!newMovieFolderPath.trim()) {
+					new Notice("Folder path is required.");
+					return;
+				}
+				plugin.settings.movieFolderPaths.push(
+					newMovieFolderPath.trim(),
+				);
+				await plugin.saveSettings();
+				newMovieFolderPath = "";
+				drawMovieFolders();
+			}),
+	);
 
 	new Setting(containerEl).setName("Movie/Series Templates").setHeading();
 
-	const movieTemplatesDiv = containerEl.createDiv({
+	const movieTemplateContainer = containerEl.createDiv({
+		cls: "setting-list-container",
+	});
+
+	const movieTemplatesDiv = movieTemplateContainer.createDiv({
 		cls: "setting-template-list",
 	});
 
@@ -80,7 +140,7 @@ export function renderMovieSettings(
 	drawMovieTemplates();
 
 	// Add New Movie Template Section
-	const addMovieContainer = containerEl.createDiv();
+	const addMovieContainer = movieTemplateContainer.createDiv();
 	let newMoviePath = "";
 
 	new Setting(addMovieContainer)
@@ -107,4 +167,6 @@ export function renderMovieSettings(
 				drawMovieTemplates();
 			}),
 	);
+
+	new Setting(containerEl).setName("").setHeading(); // Used as the padding
 }

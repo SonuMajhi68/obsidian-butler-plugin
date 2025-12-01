@@ -15,9 +15,9 @@ import { ButlerSettings, ButlerPluginLike } from "./utils/types";
 // import { TemplateSelectModal } from "./modals/templateSelectModal";
 
 const DEFAULT_SETTINGS: ButlerSettings = {
-	bookFolderPath: "Books",
+	bookFolderPaths: ["Books"],
 	bookTemplates: ["Templates/book.md"],
-	movieFolderPath: "Movies",
+	movieFolderPaths: ["Movies"],
 	movieTemplates: ["Templates/movie.md"], // Changed here
 	omdbApiKey: "",
 	hiddenFolders: ["Templates"],

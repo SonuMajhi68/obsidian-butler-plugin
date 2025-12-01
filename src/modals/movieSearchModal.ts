@@ -1,20 +1,20 @@
 import { App, Modal, Notice, TFile, normalizePath } from "obsidian";
 import { OmdbApi, OMDbSearchItem } from "../apis/omdbApi";
-import { TemplateSelectModal } from "./templateSelectModal"; // Import the shared modal
+import { SelectorModal } from "./selectorModal"; // Import the shared modal
 
 export class SearchMovieModal extends Modal {
-	private savePath: string;
+	private savePaths: string[];
 	private templates: string[]; // Changed to array
 	private api: OmdbApi;
 
 	constructor(
 		app: App,
-		savePath: string,
+		savePaths: string[],
 		templates: string[],
 		apiKey: string,
 	) {
 		super(app);
-		this.savePath = savePath;
+		this.savePaths = savePaths;
 		this.templates = templates;
 		this.api = new OmdbApi(apiKey);
 	}
@@ -84,9 +84,10 @@ export class SearchMovieModal extends Modal {
 							return;
 						}
 
-						// Define the function to run after template selection
-						const handleSelection = async (
+						// proceedSave runs after both template & folder selected
+						const proceedSave = async (
 							templatePath: string,
+							folderPath: string,
 						) => {
 							new Notice(
 								`Fetching details for "${doc.Title}"...`,
@@ -95,19 +96,50 @@ export class SearchMovieModal extends Modal {
 							await this.saveMovieDetailsToVault(
 								doc.imdbID,
 								templatePath,
+								folderPath,
 							);
 						};
 
+						// choose folder then save
+						const chooseFolderThenSave = async (
+							templatePath: string,
+						) => {
+							if (
+								!this.savePaths ||
+								this.savePaths.length === 0
+							) {
+								new Notice(
+									"No save folders configured in settings.",
+								);
+								return;
+							}
+							if (this.savePaths.length === 1) {
+								await proceedSave(
+									templatePath,
+									this.savePaths[0],
+								);
+							} else {
+								new SelectorModal(
+									this.app,
+									this.savePaths,
+									(selectedFolder) => {
+										proceedSave(
+											templatePath,
+											selectedFolder,
+										);
+									},
+								).open();
+							}
+						};
+
 						if (this.templates.length === 1) {
-							// Auto-select if only one exists
-							await handleSelection(this.templates[0]);
+							await chooseFolderThenSave(this.templates[0]);
 						} else {
-							// Open the shared TemplateSelectModal
-							new TemplateSelectModal(
+							new SelectorModal(
 								this.app,
 								this.templates,
 								(selectedPath) => {
-									handleSelection(selectedPath);
+									chooseFolderThenSave(selectedPath);
 								},
 							).open();
 						}
@@ -129,7 +161,11 @@ export class SearchMovieModal extends Modal {
 	}
 
 	// Added templatePath parameter
-	async saveMovieDetailsToVault(imdbID: string, templatePath: string) {
+	async saveMovieDetailsToVault(
+		imdbID: string,
+		templatePath: string,
+		folderPath: string,
+	) {
 		try {
 			const movieData = await this.api.getById(imdbID);
 
@@ -154,7 +190,7 @@ export class SearchMovieModal extends Modal {
 				/[\\/:*?"<>|]/g,
 				"_",
 			);
-			const dirPath = normalizePath(this.savePath);
+			const dirPath = normalizePath(folderPath);
 			const filePath = normalizePath(`${dirPath}/${sanitizedTitle}.md`);
 
 			if (!(await this.app.vault.adapter.exists(dirPath))) {

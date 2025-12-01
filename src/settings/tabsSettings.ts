@@ -24,4 +24,6 @@ export function renderTabsSettings(
 					await plugin.saveSettings();
 				}),
 		);
+
+	new Setting(containerEl).setName("").setHeading(); // Used as the padding
 }

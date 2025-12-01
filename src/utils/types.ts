@@ -2,11 +2,11 @@ import { App } from "obsidian";
 
 export interface ButlerSettings {
 	// Book settings
-	bookFolderPath: string;
+	bookFolderPaths: string[];
 	bookTemplates: string[];
 
 	// Movie settings
-	movieFolderPath: string;
+	movieFolderPaths: string[];
 	movieTemplates: string[]; // Changed from movieTemplateFilePath to string[]
 	omdbApiKey: string;
 

@@ -42,4 +42,6 @@ export function renderHiderSettings(
 					plugin.updateFolderHiderIcon?.(); // <--- Syncs the ribbon icon immediately
 				}),
 		);
+
+	new Setting(containerEl).setName("").setHeading(); // Used as the padding
 }

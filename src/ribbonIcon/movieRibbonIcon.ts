@@ -13,7 +13,7 @@ export function addMovieRibbonIcon(plugin: any) {
 		}
 		new SearchMovieModal(
 			plugin.app,
-			plugin.settings.movieFolderPath,
+			plugin.settings.movieFolderPaths,
 			plugin.settings.movieTemplates, // Pass the array
 			plugin.settings.omdbApiKey,
 		).open();
