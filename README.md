@@ -1,84 +1,63 @@
-# 📚 Butler for Obsidian
+# 🎩 Butler for Obsidian
 
-This plugin provides a collection of useful tools for your Obsidian vault, integrating external knowledge from **OpenLibrary** and **Wikipedia**, and adding quality-of-life features like a **Folder Hider**.
+**Butler** is a comprehensive utility plugin for Obsidian designed to streamline your knowledge management workflow. It bridges the gap between your vault and external databases (OpenLibrary, OMDb, Wikipedia) while providing powerful UI enhancements like folder hiding and tabbed content.
 
+## 🔥 Features
 
-## ✨ Features
+###  Media Fetching
+* **Book Search:** Search **OpenLibrary** to instantly create book notes with metadata (authors, publication year, covers).
+* **Movie & TV Search:** Query **OMDb** to generate notes for movies and series with posters, ratings, and cast lists.
+* **Templating:** Fully customizable templates for both books and movies using dynamic placeholders.
 
-This plugin includes three main features:
+###  Knowledge Integration
+* **Wikipedia Linker:** Context-menu integration to search selected text on Wikipedia and insert formatted Markdown links without breaking your writing flow.
 
-### 1. **Book Search**
-Quickly search for books on **OpenLibrary** and save them as new, detailed notes in your vault.
-
-### 2. **Wikipedia Linker**
-Instantly link your selected text to a relevant **Wikipedia** article.
-
-### 3. **Folder Hider**
-Declutter your file explorer by hiding specified folders (like `Templates` or `Assets`) with a simple toggle.
-
-
-## 🚀 How to Use
-
-### 1. **Book Search**
-
-1. Click the **“Search Books”** (📖 icon) in the left ribbon.  
-2. A modal will open. Type in a book title and click **“Search”**.  
-3. Browse the list of results. Clicking on a book will:
-   - Fetch detailed information from OpenLibrary.  
-   - Fill out a new note using your specified template.  
-   - Save the new note to your designated **Book Folder**.  
-   - Automatically open the new note for you.
-
-
-### 2. **Wikipedia Linker**
-
-1. In the editor, select any piece of text you want to link.  
-2. Right-click on the selected text.  
-3. Choose **“Wiki Link”** from the context menu.  
-4. A modal will open and automatically search **Wikipedia** for your selected text.  
-5. Click on the correct search result — the plugin will instantly format your selected text into a Markdown link:  
-
-   ```markdown
-   [Your Text](https://en.wikipedia.org/wiki/Page_Title)
-   ```
-
-
-### 3. **Folder Hider**
-
-1. Click the **“Toggle Hidden Folders”** (👁️ icon) in the left ribbon to show or hide folders you’ve configured in settings.  
-2. You can also use the **“Toggle Hidden Folders”** command from the Command Palette (`Ctrl/Cmd + P`).  
-
-Perfect for hiding system folders, template folders, or archives that you don’t need to see every day.
+###  Vault Management
+* **Folder Hider:** Toggle the visibility of specific folders (e.g., `Templates`, `Assets`, `Private`) to keep your file explorer clean. Supports pattern matching.
+* **Tabbed Content:** Create clean, clickable tab interfaces within your notes using a simple code block.
 
 ---
 
-## ⚙️ Configuration
+## 🧩 Usage
 
-To configure the plugin, open Obsidian’s **Settings** and find the **Book & Wiki Utilities** tab.
+### 1. Creating Media Notes
+1.  Click the **Book** (📕) or **Film** (🎬) icon in the left ribbon (or use the Command Palette).
+2.  Enter the title of the media you are looking for.
+3.  Select the correct result from the list.
+4.  **Note:** If you have multiple storage folders or templates defined in settings, Butler will prompt you to select the desired destination/style.
 
-### 📘 Book Settings
+### 2. Wikipedia Linking
+1.  Highlight any text in your editor.
+2.  Right-click and select **"Wiki Link"**.
+3.  Choose the matching article from the modal. The text will be converted into a link: `[Selected Text](Wiki_URL)`.
 
-| Setting | Description |
-|----------|--------------|
-| **Book folder path** | Set the default folder where new book notes are saved (e.g., `Inbox/Books`). |
-| **Template file path** | Choose the `.md` file used as a template for new book notes. |
+### 3. Hiding Folders
+1.  Define folders to hide in **Settings**.
+2.  Click the **Eye** (👁️) icon in the ribbon or run the command **"Toggle hidden folders"** to switch visibility.
 
-#### Template Placeholders
+### 4. Adding Tabs
+Insert a `tab` code block to create tabbed interfaces. Use `tab:Header Name` to define new tabs.
 
-Use these placeholders inside your template file:
+~~~
+```tab
+tab: General
+This is the content for the first tab.
 
-| Placeholder | Description |
-|--------------|-------------|
-| `{{title}}` | Book title |
-| `{{author}}` | Author name |
-| `{{year}}` | Year of publication |
-| `{{publisher}}` | Publisher name |
-| `{{url}}` | Link to the OpenLibrary page |
-| `{{cover}}` | Link to the book’s cover image |
-| `{{json}}` | Raw JSON block of all data from the API |
+tab: Details
+This is the content for the second tab.
+```
+~~~
+
+---
+
+## ⚙️ Configuration & Templates
+
+### API Keys
+
+- **OMDb API:** Required for movie searching. You can get a free key [here](https://www.omdbapi.com/apikey.aspx). Enter this key in the Butler settings tab.
 
 
-### 🗂️ Folder Hider Settings
+### 🗂️ Folder Hider Patterns
 
 | Setting | Description |
 |----------|-------------|
@@ -86,11 +65,46 @@ Use these placeholders inside your template file:
 | **Prefix Matching** | Use `startswith::` or `endswith::` for flexible matching (e.g., `startswith::Private-` hides `Private-Notes` and `Private-Projects`). |
 | **Hide Folders by Default** | Toggle whether folders are hidden when the vault first loads. |
 
-## Manually installing the plugin
+#### 📖 Book Placeholders
 
-- Run the build command (this is typically set up in the package.json file of the Obsidian sample plugin):
-```bash
-npm install
-npm run build
-```
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+| **Placeholder** | **Description**               |
+| --------------- | ----------------------------- |
+| `{{title}}`     | Book Title                    |
+| `{{author}}`    | Author Name(s)                |
+| `{{year}}`      | First Publish Year            |
+| `{{publisher}}` | Publisher Name                |
+| `{{cover}}`     | URL to the book cover image   |
+| `{{url}}`       | Link to the OpenLibrary entry |
+| `{{json}}`      | Raw JSON data block           |
+
+#### 🎬 Movie/Series Placeholders
+
+|**Placeholder**|**Description**|
+|---|---|
+|`{{title}}`|Movie Title|
+|`{{year}}`|Release Year|
+|`{{director}}`|Director Name|
+|`{{writer}}`|Writer Name|
+|`{{actors}}`|Main Cast|
+|`{{plot}}`|Plot Summary|
+|`{{rating}}`|IMDb Rating|
+|`{{genres}}`|Genres|
+|`{{duration}}`|Runtime|
+|`{{image}}`|URL to the Poster image|
+|`{{premiere}}`|Full Release Date|
+|`{{url}}`|Link to the IMDb entry|
+
+---
+
+### Manual Installation
+
+1. Download the latest release from GitHub.
+2. Extract the `main.js`, `styles.css`, and `manifest.json` files.
+3. Move them to your vault's plugin folder: `<Vault>/.obsidian/plugins/obsidian-butler/`.
+4. Reload Obsidian and enable the plugin in Community Plugins settings.
+
+### Development
+
+1. Clone this repository.
+2. Run `npm install` to install dependencies.
+3. Run `npm run build` to compile the plugin.

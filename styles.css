@@ -262,7 +262,7 @@ body.hide-boder
 
 .setting-list-container {
 	border: 1px solid var(--background-modifier-border);
-	padding: 12px;
+	padding: 12px 16px;
 	border-radius: 6px;
 	margin-top: 5px;
 	margin-bottom: 10px;
