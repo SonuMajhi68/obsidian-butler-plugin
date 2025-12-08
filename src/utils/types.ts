@@ -16,6 +16,16 @@ export interface ButlerSettings {
 
 	// Tab settings
 	tabsHoverBorder: boolean;
+
+	plotTitleFontSize: number;
+	plotLabelFontSize: number;
+	plotLineWidth: number;
+	plotGraphLineWidth: number; // NEW (Used for Graph Curves)
+	plotGridWidth: number;
+	plotFontColor: string;
+	plotLineColor: string;
+	plotGridColor: string;
+	plotDisableZoom: boolean;
 }
 
 export interface ButlerPluginLike {
@@ -24,4 +34,23 @@ export interface ButlerPluginLike {
 	saveSettings: () => Promise<void>;
 	processFolders?: () => void;
 	updateFolderHiderIcon?: () => void;
+}
+
+export interface PlotAxisConfig {
+	label?: string;
+	type?: "linear" | "log";
+	domain?: [number, number];
+	invert?: boolean;
+}
+
+export interface PlotBlockOptions {
+	width: number;
+	height: number;
+	title?: string;
+	xAxis: PlotAxisConfig;
+	yAxis: PlotAxisConfig;
+	disableZoom: boolean;
+	grid: boolean;
+	scaled: boolean;
+	lines: string[];
 }

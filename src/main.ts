@@ -12,7 +12,8 @@ import { Tabs } from "./modules/tabs";
 import { ButlerSettingTab } from "./settings";
 import { ButlerSettings, ButlerPluginLike } from "./utils/types";
 
-// import { TemplateSelectModal } from "./modals/templateSelectModal";
+import { addPlotCommand } from "./commands/plotCommand"; // NEW
+import { FunctionPlotHandler } from "./modules/functionPlot"; // NEW
 
 const DEFAULT_SETTINGS: ButlerSettings = {
 	bookFolderPaths: ["Books"],
@@ -23,6 +24,15 @@ const DEFAULT_SETTINGS: ButlerSettings = {
 	hiddenFolders: ["Templates"],
 	foldersHidden: true,
 	tabsHoverBorder: true,
+	plotTitleFontSize: 24,
+	plotLabelFontSize: 12,
+	plotLineWidth: 2,
+	plotGraphLineWidth: 2, // NEW: Default graph width
+	plotGridWidth: 1,
+	plotFontColor: "var(--text-normal)",
+	plotLineColor: "gray",
+	plotGridColor: "var(--icon-color)",
+	plotDisableZoom: false,
 };
 
 export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
@@ -53,6 +63,7 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 		addMovieSearchCommand(this);
 		addHideFolderCommand(this);
 		addTabCommand(this);
+		addPlotCommand(this); // Register NEW Command
 
 		// Wiki context menu
 		registerWikiSearchContext(this.app, this);
@@ -72,8 +83,12 @@ export default class ButlerPlugin extends Plugin implements ButlerPluginLike {
 		// Register tab
 		this.registerMarkdownCodeBlockProcessor("tab", (source, el, ctx) => {
 			const tabs = new Tabs(el, source, ctx, this.app);
-			console.log(el.parentElement);
+			// console.log(el.parentElement);
 			ctx.addChild(tabs);
+		});
+
+		this.registerMarkdownCodeBlockProcessor("plot", (source, el, ctx) => {
+			FunctionPlotHandler.render(source, el, ctx, this.settings);
 		});
 
 		// Register layout watchers

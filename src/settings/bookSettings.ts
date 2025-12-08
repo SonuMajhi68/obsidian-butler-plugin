@@ -55,29 +55,28 @@ export function renderBookSettings(
 
 	new Setting(folderContainer)
 		.setName("Folder Path")
-		.setDesc("Add folder path where new book notes can be saved.")
+		.setDesc("Add folder path to the list.")
 		.addSearch((cb) => {
 			new FolderSuggest(app, cb.inputEl);
 			cb.setPlaceholder("Books/").onChange(
 				(val) => (newFolderPath = val),
 			);
-		});
-
-	new Setting(folderContainer).addButton((btn) =>
-		btn
-			.setButtonText("Add Folder")
-			.setCta()
-			.onClick(async () => {
-				if (!newFolderPath.trim()) {
-					new Notice("Folder path is required.");
-					return;
-				}
-				plugin.settings.bookFolderPaths.push(newFolderPath.trim());
-				await plugin.saveSettings();
-				newFolderPath = "";
-				drawBookFolders();
-			}),
-	);
+		})
+		.addButton((btn) =>
+			btn
+				.setButtonText("Add")
+				.setCta()
+				.onClick(async () => {
+					if (!newFolderPath.trim()) {
+						new Notice("Folder path is required.");
+						return;
+					}
+					plugin.settings.bookFolderPaths.push(newFolderPath.trim());
+					await plugin.saveSettings();
+					newFolderPath = "";
+					drawBookFolders();
+				}),
+		);
 
 	new Setting(containerEl).setName("Book Templates").setHeading();
 
@@ -127,28 +126,27 @@ export function renderBookSettings(
 
 	new Setting(templateContainer)
 		.setName("Template File")
-		.setDesc("Add Template path to the list.")
+		.setDesc("Add template to the list.")
 		.addSearch((cb) => {
 			new FileSuggest(app, cb.inputEl);
 			cb.setPlaceholder("Templates/book.md");
 			cb.onChange((val) => (newPath = val));
-		});
-
-	new Setting(templateContainer).addButton((btn) =>
-		btn
-			.setButtonText("Add Template")
-			.setCta()
-			.onClick(async () => {
-				if (!newPath.trim()) {
-					new Notice("Template path is required.");
-					return;
-				}
-				plugin.settings.bookTemplates.push(newPath.trim());
-				await plugin.saveSettings();
-				newPath = "";
-				drawBookTemplates();
-			}),
-	);
+		})
+		.addButton((btn) =>
+			btn
+				.setButtonText("Add")
+				.setCta()
+				.onClick(async () => {
+					if (!newPath.trim()) {
+						new Notice("Template path is required.");
+						return;
+					}
+					plugin.settings.bookTemplates.push(newPath.trim());
+					await plugin.saveSettings();
+					newPath = "";
+					drawBookTemplates();
+				}),
+		);
 
 	new Setting(containerEl).setName("").setHeading(); // Used as the padding
 }

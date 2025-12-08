@@ -7,6 +7,7 @@ import { renderBookSettings } from "./settings/bookSettings";
 import { renderMovieSettings } from "./settings/movieSettings";
 import { renderHiderSettings } from "./settings/hiderSettings";
 import { renderTabsSettings } from "./settings/tabsSettings";
+import { renderPlotSettings } from "./settings/plotSettings";
 
 export class ButlerSettingTab extends PluginSettingTab {
 	plugin: ButlerPluginLike;
@@ -25,5 +26,6 @@ export class ButlerSettingTab extends PluginSettingTab {
 		renderMovieSettings(containerEl, this.app, this.plugin);
 		renderHiderSettings(containerEl, this.plugin);
 		renderTabsSettings(containerEl, this.plugin);
+		renderPlotSettings(containerEl, this.plugin);
 	}
 }

@@ -70,31 +70,30 @@ export function renderMovieSettings(
 
 	new Setting(addContainer)
 		.setName("Folder Path")
-		.setDesc("Add folder path where new movie/series notes can be saved.")
+		.setDesc("Add movie folder path to the list.")
 		.addSearch((cb) => {
 			new FolderSuggest(app, cb.inputEl);
 			cb.setPlaceholder("Movies/").onChange(
 				(val) => (newMovieFolderPath = val),
 			);
-		});
-
-	new Setting(addContainer).addButton((btn) =>
-		btn
-			.setButtonText("Add Folder")
-			.setCta()
-			.onClick(async () => {
-				if (!newMovieFolderPath.trim()) {
-					new Notice("Folder path is required.");
-					return;
-				}
-				plugin.settings.movieFolderPaths.push(
-					newMovieFolderPath.trim(),
-				);
-				await plugin.saveSettings();
-				newMovieFolderPath = "";
-				drawMovieFolders();
-			}),
-	);
+		})
+		.addButton((btn) =>
+			btn
+				.setButtonText("Add")
+				.setCta()
+				.onClick(async () => {
+					if (!newMovieFolderPath.trim()) {
+						new Notice("Folder path is required.");
+						return;
+					}
+					plugin.settings.movieFolderPaths.push(
+						newMovieFolderPath.trim(),
+					);
+					await plugin.saveSettings();
+					newMovieFolderPath = "";
+					drawMovieFolders();
+				}),
+		);
 
 	new Setting(containerEl).setName("Movie/Series Templates").setHeading();
 
@@ -145,28 +144,27 @@ export function renderMovieSettings(
 
 	new Setting(addMovieContainer)
 		.setName("Template File")
-		.setDesc("Add Template path to the list.")
+		.setDesc("Add movie template to the list.")
 		.addSearch((cb) => {
 			new FileSuggest(app, cb.inputEl);
 			cb.setPlaceholder("Templates/movie.md");
 			cb.onChange((val) => (newMoviePath = val));
-		});
-
-	new Setting(addMovieContainer).addButton((btn) =>
-		btn
-			.setButtonText("Add Template")
-			.setCta()
-			.onClick(async () => {
-				if (!newMoviePath.trim()) {
-					new Notice("Template path is required.");
-					return;
-				}
-				plugin.settings.movieTemplates.push(newMoviePath.trim());
-				await plugin.saveSettings();
-				newMoviePath = "";
-				drawMovieTemplates();
-			}),
-	);
+		})
+		.addButton((btn) =>
+			btn
+				.setButtonText("Add")
+				.setCta()
+				.onClick(async () => {
+					if (!newMoviePath.trim()) {
+						new Notice("Template path is required.");
+						return;
+					}
+					plugin.settings.movieTemplates.push(newMoviePath.trim());
+					await plugin.saveSettings();
+					newMoviePath = "";
+					drawMovieTemplates();
+				}),
+		);
 
 	new Setting(containerEl).setName("").setHeading(); // Used as the padding
 }

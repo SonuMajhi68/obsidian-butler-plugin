@@ -14,6 +14,8 @@ export function renderHiderSettings(
 			"Enter folder names (one per line) that should be hidden from the file explorer. Use startswith:: or endswith:: prefixes for partial matches.",
 		)
 		.addTextArea((text) => {
+			text.inputEl.rows = 5;
+			// text.inputEl.style.width = "100%";
 			text.setPlaceholder("Templates\nOldBooks\nArchive")
 				.setValue((plugin.settings.hiddenFolders ?? []).join("\n"))
 				.onChange(async (value) => {
