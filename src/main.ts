@@ -18,6 +18,8 @@ import { FunctionPlotHandler } from "./modules/functionPlot"; // NEW
 const DEFAULT_SETTINGS: ButlerSettings = {
 	bookFolderPaths: ["Books"],
 	bookTemplates: ["Templates/book.md"],
+	useGoogleBooks: false,
+	googleBooksApiKey: "",
 	movieFolderPaths: ["Movies"],
 	movieTemplates: ["Templates/movie.md"], // Changed here
 	omdbApiKey: "",

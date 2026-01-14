@@ -8,6 +8,7 @@ export function addBookRibbonIcon(plugin: any) {
 			plugin.app,
 			plugin.settings.bookFolderPaths,
 			plugin.settings.bookTemplates, // Pass the array
+			plugin.settings,
 		).open();
 	});
 }

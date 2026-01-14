@@ -10,6 +10,35 @@ export function renderBookSettings(
 ) {
 	containerEl.createEl("h1", { text: "Book Search Settings" });
 
+	new Setting(containerEl)
+		.setName("Use Google Books API")
+		.setDesc(
+			"Toggle On to use Google Books. Toggle Off to use Open Library.",
+		)
+		.addToggle((toggle) =>
+			toggle
+				.setValue(plugin.settings.useGoogleBooks)
+				.onChange(async (value) => {
+					plugin.settings.useGoogleBooks = value;
+					await plugin.saveSettings();
+					// Force refresh of the settings UI to show/hide API key field dynamically if you wanted,
+					// but standard practice is just leaving it visible or strict ordering.
+				}),
+		);
+
+	new Setting(containerEl)
+		.setName("Google Books API Key")
+		.setDesc("Required if 'Use Google Books API' is enabled.")
+		.addText((text) =>
+			text
+				.setPlaceholder("Enter API Key...")
+				.setValue(plugin.settings.googleBooksApiKey)
+				.onChange(async (value) => {
+					plugin.settings.googleBooksApiKey = value.trim();
+					await plugin.saveSettings();
+				}),
+		);
+
 	new Setting(containerEl).setName("Book Folders").setHeading();
 
 	const bookFoldersContainer = containerEl.createDiv({

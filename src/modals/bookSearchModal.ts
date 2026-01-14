@@ -1,17 +1,52 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { App, Modal, Notice, TFile, normalizePath } from "obsidian";
-import { OpenLibraryApi, OpenLibrarySearchItem } from "../apis/openLibraryApi";
+import { OpenLibraryApi } from "../apis/openLibraryApi";
+import { GoogleBooksApi } from "../apis/googleBooksApi";
 import { SelectorModal } from "./selectorModal";
+import { ButlerSettings } from "../utils/types";
+import { SearchItem, SearchResponse } from "../apis/types";
+
+// interface BookApi {
+// 	searchByTitle(
+// 		title: string,
+// 	): Promise<{ docs: SearchItem[]; numFound: number }>;
+// 	getByKey(key: string): Promise<any>;
+// }
+
+interface BookApi {
+	searchByTitle(title: string): Promise<SearchResponse>;
+	getByKey(key: string): Promise<any>;
+}
 
 export class SearchBooksModal extends Modal {
 	private savePaths: string[];
-	private templates: string[]; // Changed to string[]
-	private api: OpenLibraryApi;
+	private templates: string[];
+	private api: BookApi;
+	private settings: ButlerSettings;
 
-	constructor(app: App, savePaths: string[], templates: string[]) {
+	constructor(
+		app: App,
+		savePaths: string[],
+		templates: string[],
+		settings: ButlerSettings,
+	) {
 		super(app);
 		this.savePaths = savePaths;
 		this.templates = templates;
 		this.api = new OpenLibraryApi();
+		this.settings = settings;
+
+		if (this.settings.useGoogleBooks) {
+			if (!this.settings.googleBooksApiKey) {
+				new Notice(
+					"Warning: Google Books API Key is missing in settings.",
+				);
+			}
+			this.api = new GoogleBooksApi(this.settings.googleBooksApiKey);
+		} else {
+			this.api = new OpenLibraryApi();
+		}
 	}
 
 	onOpen() {
@@ -57,7 +92,7 @@ export class SearchBooksModal extends Modal {
 					return;
 				}
 
-				json.docs.forEach((doc: OpenLibrarySearchItem) => {
+				json.docs.forEach((doc: SearchItem) => {
 					const title = doc.title ?? "Unknown Title";
 					const authors =
 						doc.author_name?.join(", ") ?? "Unknown Author";
@@ -171,10 +206,22 @@ export class SearchBooksModal extends Modal {
 	) {
 		try {
 			const bookData = await this.api.getByKey(key);
-			const coverUrl = bookData.covers
-				? `https://covers.openlibrary.org/b/id/${bookData.covers[0]}-L.jpg`
-				: "";
-			const url = `https://openlibrary.org${key}`;
+			// const coverUrl = bookData.covers
+			// 	? `https://covers.openlibrary.org/b/id/${bookData.covers[0]}-L.jpg`
+			// 	: "";
+
+			let coverUrl = "";
+			if (bookData.coverUrl) {
+				coverUrl = bookData.coverUrl;
+			} else if (bookData.covers && bookData.covers.length > 0) {
+				coverUrl = `https://covers.openlibrary.org/b/id/${bookData.covers[0]}-L.jpg`;
+			}
+
+			// const url = `https://openlibrary.org${key}`;
+			const url = this.settings.useGoogleBooks
+				? bookData.infoLink ||
+					`https://books.google.com/books?id=${key}`
+				: `https://openlibrary.org${key}`;
 
 			const sanitizedTitle = title.replace(/[\\/:*?"<>|]/g, "_");
 			const dirPath = normalizePath(folderPath);
@@ -208,6 +255,8 @@ export class SearchBooksModal extends Modal {
 				url,
 				cover: coverUrl,
 				publisher,
+				// description: bookData.description || "", // Google books provides clean description
+				// pages: bookData.pageCount ? String(bookData.pageCount) : "",
 				json: JSON.stringify(bookData, null, 2),
 			};
 

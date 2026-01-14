@@ -4,6 +4,8 @@ export interface ButlerSettings {
 	// Book settings
 	bookFolderPaths: string[];
 	bookTemplates: string[];
+	useGoogleBooks: boolean;
+	googleBooksApiKey: string;
 
 	// Movie settings
 	movieFolderPaths: string[];
