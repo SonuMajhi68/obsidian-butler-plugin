@@ -253,6 +253,10 @@ body.hide-boder
 	margin-bottom: 0px;
 }
 
+.setting-item:has(> .setting-list-container) {
+	display: block;
+}
+
 .setting-template-empty-msg {
 	font-size: 13px;
 	text-align: center;
@@ -260,8 +264,15 @@ body.hide-boder
 	padding: 12px 0 !important;
 }
 
+.setting-item:has(> .setting-list-container) h1 {
+	display: block;
+}
+
 .setting-list-container {
+	display: flex;
+	flex-direction: column;
 	border: 1px solid var(--background-modifier-border);
+	width: 100%;
 	padding: 12px 16px;
 	border-radius: 6px;
 	margin-top: 5px;
