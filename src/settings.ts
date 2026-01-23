@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { App, PluginSettingTab } from "obsidian";
+import { App, IconName, PluginSettingTab } from "obsidian";
 import { ButlerPluginLike } from "./utils/types";
 
 import { renderBookSettings } from "./settings/bookSettings";
@@ -16,6 +16,8 @@ export class ButlerSettingTab extends PluginSettingTab {
 		super(app, plugin as any);
 		this.plugin = plugin;
 	}
+
+	icon: IconName = "heart-handshake";
 
 	display(): void {
 		const { containerEl } = this;
