@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-butler-plugin",
-	"version": "1.2.0",
+	"version": "1.3.0",
 	"description": "A Obsidian plugin that can query multiple APIs for books and wikipedia and many more.",
 	"main": "main.js",
 	"scripts": {
