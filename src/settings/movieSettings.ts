@@ -1,4 +1,4 @@
-import { App, Setting, SettingGroup, Notice } from "obsidian";
+import { App, Setting, SettingGroup, SecretComponent, Notice } from "obsidian";
 import { FolderSuggest } from "../utils/folderSuggest";
 import { FileSuggest } from "../utils/fileSuggest";
 import { ButlerPluginLike } from "../utils/types";
@@ -19,20 +19,34 @@ export function renderMovieSettings(
 	);
 
 	// OMDb API Feild
-	movieSettingGroup.addSetting((setting) =>
+	// movieSettingGroup.addSetting((setting) =>
+	// 	setting
+	// 		.setName("OMDb API Key")
+	// 		.setDesc("Your personal API key from omdbapi.com")
+	// 		.addText((text) =>
+	// 			text
+	// 				.setPlaceholder("Enter your API key...")
+	// 				.setValue(plugin.settings.omdbApiKey)
+	// 				.onChange(async (value) => {
+	// 					plugin.settings.omdbApiKey = value.trim();
+	// 					await plugin.saveSettings();
+	// 				}),
+	// 		),
+	// );
+
+	movieSettingGroup.addSetting((setting) => {
 		setting
 			.setName("OMDb API Key")
 			.setDesc("Your personal API key from omdbapi.com")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your API key...")
+			.addComponent((el) =>
+				new SecretComponent(app, el)
 					.setValue(plugin.settings.omdbApiKey)
-					.onChange(async (value) => {
-						plugin.settings.omdbApiKey = value.trim();
-						await plugin.saveSettings();
+					.onChange((val) => {
+						plugin.settings.omdbApiKey = val.trim();
+						plugin.saveSettings();
 					}),
-			),
-	);
+			);
+	});
 
 	// Movie Folder List Container
 	movieSettingGroup.addSetting((setting) => {

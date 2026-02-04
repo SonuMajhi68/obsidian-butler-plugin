@@ -1,4 +1,4 @@
-import { App, Setting, SettingGroup, Notice } from "obsidian";
+import { App, Setting, SettingGroup, Notice, SecretComponent } from "obsidian";
 import { FolderSuggest } from "../utils/folderSuggest";
 import { FileSuggest } from "../utils/fileSuggest";
 import { ButlerPluginLike } from "../utils/types";
@@ -18,13 +18,10 @@ export function renderBookSettings(
 		"Book Settings",
 	);
 
-	// API Uses Toggle
-	bookSettingGroup.addSetting((setting) =>
+	bookSettingGroup.addSetting((setting) => {
 		setting
-			.setName("Use Google Books API")
-			.setDesc(
-				"Toggle On to use Google Books. Toggle Off to use Open Library.",
-			)
+			.setName("Use Google Book API")
+			.setDesc("Select/Create Google Book API key to enable")
 			.addToggle((toggle) =>
 				toggle
 					.setValue(plugin.settings.useGoogleBooks)
@@ -32,24 +29,16 @@ export function renderBookSettings(
 						plugin.settings.useGoogleBooks = value;
 						await plugin.saveSettings();
 					}),
-			),
-	);
-
-	// Google API field
-	bookSettingGroup.addSetting((setting) =>
-		setting
-			.setName("Google Books API Key")
-			.setDesc("Required if 'Use Google Books API' is enabled.")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter API Key...")
+			)
+			.addComponent((el) =>
+				new SecretComponent(app, el)
 					.setValue(plugin.settings.googleBooksApiKey)
-					.onChange(async (value) => {
-						plugin.settings.googleBooksApiKey = value.trim();
-						await plugin.saveSettings();
+					.onChange((val) => {
+						plugin.settings.googleBooksApiKey = val;
+						plugin.saveSettings();
 					}),
-			),
-	);
+			);
+	});
 
 	// Book Folder List container
 	bookSettingGroup.addSetting((setting) => {
