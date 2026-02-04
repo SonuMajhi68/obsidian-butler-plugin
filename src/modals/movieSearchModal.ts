@@ -17,7 +17,7 @@ export class SearchMovieModal extends Modal {
 		this.savePaths = savePaths;
 		this.templates = templates;
 
-		const key: string = app.secretStorage.getSecret(apiKey);
+		const key: string = app.secretStorage.getSecret(apiKey) ?? "";
 		this.api = new OmdbApi(key);
 	}
 

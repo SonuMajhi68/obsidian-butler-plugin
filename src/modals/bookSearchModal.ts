@@ -43,9 +43,9 @@ export class SearchBooksModal extends Modal {
 					"Warning: Google Books API Key is missing in settings.",
 				);
 			}
-			const key: string = app.secretStorage.getSecret(
-				this.settings.googleBooksApiKey,
-			);
+			const key: string =
+				app.secretStorage.getSecret(this.settings.googleBooksApiKey) ??
+				"";
 			this.api = new GoogleBooksApi(key);
 		} else {
 			this.api = new OpenLibraryApi();
